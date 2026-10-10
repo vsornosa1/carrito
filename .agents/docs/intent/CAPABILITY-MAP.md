@@ -289,4 +289,9 @@ and becomes its own map in its own repository. If it decides **adapter**, `aldi-
 stays here as the first consumer of the seam. That decision belongs to the module;
 this map does not pre-empt it.
 
-Specs: [SPEC-licensing.md](./SPEC-licensing.md)
+Specs: [SPEC-licensing.md](./SPEC-licensing.md),
+[SPEC-offer.md](./SPEC-offer.md),
+[SPEC-retailer-abstraction.md](./SPEC-retailer-abstraction.md),
+[SPEC-entitlement.md](./SPEC-entitlement.md). `branding` and `launch-comms` have no
+spec yet — both need decisions only the author can make (a name, and how to publish
+given an employer), so they are deliberately left open rather than guessed.
