@@ -1,119 +1,118 @@
-# Implementation Plan: trip order
+# Implementation Plan: licensing envelope
 
 ## Overview
 
-Make the list read as a walk. Products and sections are grouped into seven
-**zones** in trip order — non-food its own block, the trip ending at the freezer —
-and the order is a proposal the user can correct in two layers without ever
-dragging. The same vocabulary orders the browse tree, which stops being
-alphabetical.
+Draw the boundary the premium feature has to live inside. Before anything is
+charged for, establish — per layer of the app — whether that layer *may* be
+charged for, what obligation follows if it may, and the clause that decides it.
+The output is a map with citations, made durable by a guard test that fails when
+it drifts from what the repo actually distributes.
 
-Intent: [INTENT-trip-order.md](../.agents/docs/intent/INTENT-trip-order.md) ·
-Specs: [SPEC-zones.md](../.agents/docs/intent/SPEC-zones.md),
-[SPEC-ordering.md](../.agents/docs/intent/SPEC-ordering.md)
+Intent: [INTENT-monetization.md](../.agents/docs/intent/INTENT-monetization.md) ·
+Spec: [SPEC-licensing.md](../.agents/docs/intent/SPEC-licensing.md)
 
 ## Architecture Decisions
 
-- **The mapping is data, not a branch.** `SECTION_TO_ZONE` and `ZONES` are exported
-  tables, so moving a section is a one-line reviewable diff. Zone assignment is per
-  *product* only where it must be: `Bebé` holds both nappies and formula, and that
-  split already exists as the tested `isFoodProduct` — the exception list gets no
-  second copy.
-- **An unknown section falls back, loudly.** A section missing from the table lands
-  in `despensa` and the fallback is asserted in tests, so a future Mercadona
-  category cannot silently vanish from the app.
-- **Groups are shared, sequence is per screen.** The cart follows the user's mode;
-  the browse tree and search always follow the proposal and relevance. Reordering
-  the place you *look things up* would be surprising, and search ranking already
-  answers a different question.
-- **`A–Z` is a view, not a mutation.** It never reads or writes the custom layers,
-  because "I switched to A–Z to check something and lost my arrangement" is the one
-  failure that would make the whole feature untrustworthy.
-- **Move controls, never drag.** Keyboard-operable, testable with real user events,
-  and reliable one-handed in a shop. Drag may be layered on later; it is never the
-  only mechanism.
-- **The count parity test is the regression that matters.** A shelf is cross-listed
-  under several sections in the mirror, so the tree and the listing must key on the
-  same `(section, shelf)` pair. The test walks the *real bundle* and asserts
-  `count === opened.length` everywhere, so the 11+ historical mismatches can never
-  come back.
+- **The envelope is data, not prose.** `data/licensing/inventory.json` holds the
+  rows; `tests/licensing.test.ts` is the guard. A prose answer rots silently; a
+  table with a guard fails when a new distributed artifact appears without a
+  verdict. Same shape as the section→zone table proved against all 4,330
+  products.
+- **The audit does not ship.** Nothing under `src/` imports the inventory, and no
+  app behaviour changes. The envelope is build- and test-time only, so it adds
+  nothing to the bundle and cannot accidentally become a runtime dependency.
+- **Verdicts are a fixed vocabulary, and each carries a `basis`.** `safe` /
+  `safe-if-X` / `not-safe` / `unknown`, with `X` named. No verdict without a
+  citation, enforced by the test rather than by discipline.
+- **`unknown` is first-class and is not softened.** The mirror's MIT question is
+  the load-bearing one, and the honest answer may well be `unknown` plus what
+  would resolve it. The app already works this way — a confident guess is never
+  preferred to a stated gap.
+- **Research order follows risk, not document order.** ODbL is the layer most
+  likely to change the answer, so it is researched first. If it turns out to
+  forbid charging behind the nutrition layer, that is cheaper to learn now than
+  after a feature exists.
+- **The unresolved branch is recorded, not guessed.** Whether the paywall gates
+  the *database* or the *app* decides `safe` versus `safe-if` for the
+  OFF-derived fields, and that question cannot be answered until a feature is
+  chosen — so both branches are written down.
+- **No enforceability opinion, ever.** The map states what the licences say and
+  what a qualified reader should be shown. It never states whether a term would
+  hold up.
 
 ## Task List
 
-### Phase 1: The vocabulary (`zones`)
+### Phase 1: The inventory and its guard
 
-- [ ] Task 1: `src/lib/zones.ts` — `ZONES`, `SECTION_TO_ZONE`, `zoneFor`,
-      `groupByZone`, plus the type contract. Tests first.
-- [ ] Task 2: Prove it against the real catalogue — every one of the 4,330 products
-      gets exactly one zone; the seven counts sum to the catalogue size; all 26
-      sections appear in the table; baby food and nappies land in different zones,
-      asserted from real products rather than fixtures.
-- [ ] Task 3: The count parity regression — walk every section and shelf in the
-      bundle and assert each count equals the list it opens.
+- [x] Task 1: The row contract and the ten rows — `data/licensing/inventory.json`,
+      vocabulary and basis enforced by test. Done 2026-10-11: ten rows seeded
+      `unknown` with what would resolve each; contract green (9 tests).
+- [ ] Task 2: The completeness guard — every committed artifact under
+      `public/catalog/` and `data/enriched/` maps to exactly one row.
+- [ ] Task 3: The OFF-fields guard — the nutrition fields actually present in the
+      shipped bundle are accounted for by a row.
 
-### Checkpoint: Vocabulary
-- [ ] `npm test`, `typecheck`, `lint` clean
-- [ ] No UI yet; the mapping is reviewable as data
+### Checkpoint: Inventory
+- [ ] `npx vitest run tests/licensing.test.ts` green
+- [ ] The guard has been seen to *fail* on a deliberate drift, not just pass
+- [ ] No `src/` file imports the inventory
 
-### Phase 2: The sequence (`ordering`)
+### Phase 2: The layers, researched in risk order
 
-- [ ] Task 4: The preference shape — `OrderMode`, defaults, `isCustomised`,
-      `nextMode`, `resetOrder`. Tests first.
-- [ ] Task 5: `orderZones` — the custom order applied over the proposal, tolerating
-      a short or partial list.
-- [ ] Task 6: `orderWithinZone` — layer 2, leaving unlisted products in catalogue
-      order, ignoring ids that no longer exist.
-- [ ] Task 7: Persistence under `mercadonapp.order.v1` — survives a reload, degrades
-      to the proposal on a corrupt or partially-valid value, and keeps a zone's
-      order while it is temporarily empty.
+- [ ] Task 4: The ODbL layer — `enriched-db`, `off-derived-nutrition`,
+      `off-api-terms`, with clause citations.
+- [ ] Task 5: The Mercadona layer — `mirror`, `underlying-catalog-data`,
+      `catalog-bundle`, `photos`, `trademark`.
+- [ ] Task 6: The authored layer — `code`, `app-shell`, and the missing `LICENSE`.
 
-### Checkpoint: Sequence
-- [ ] Both layers round-trip through storage
-- [ ] `A–Z` proven non-destructive by test
+### Checkpoint: Verdicts
+- [ ] Every row has a verdict and a non-empty `basis`
+- [ ] Every `unknown` names what would resolve it
+- [ ] Review with the human before writing the document
 
-### Phase 3: The cart
+### Phase 3: The map
 
-- [ ] Task 8: Group the cart by zone with a heading per non-empty zone; phone and
-      window arrangements both deliberate, as with the rest of the app.
-- [ ] Task 9: The mode chip — always states the current mode, carries the one-line
-      `why`, sits beneath the search field at the top of the cart.
-- [ ] Task 10: Move controls — zones up/down, and products within a zone, reachable
-      by keyboard alone; the first move switches the mode to `Mi orden`.
-- [ ] Task 11: `A–Z` and reset, including the confirm behind reset.
+- [ ] Task 7: `docs/licensing/ENVELOPE.md` — one section per layer, ending in a
+      verdict and its clause, with the not-legal-advice framing and the list of
+      what a lawyer would need to see.
+- [ ] Task 8: The litmus — three plausible premium features run through the
+      envelope end to end.
 
-### Checkpoint: Cart
-- [ ] Full suite green
-- [ ] Browser pass at 375 px and 1280 px
+### Checkpoint: Map
+- [ ] A feature can be given a verdict without re-opening the research
 
-### Phase 4: The browse tree
+### Phase 4: Verification
 
-- [ ] Task 12: Sections grouped under zone headings, in zone order, on both
-      layouts — the alphabetical interleaving is the original complaint.
+- [ ] Task 9: Prove the guard fails when it should; full suite, typecheck, lint
+      and build green.
 
-### Checkpoint: Browse
-- [ ] Section counts still equal the lists they open on both layouts
-
-### Phase 5: Verification and merge
-
-- [ ] Task 13: Catalogue-wide audit assertions and a browser verification pass:
-      320–1440 px, no horizontal overflow, contrast clean, keyboard-only reorder
-      walked end to end.
-- [ ] Task 14: Version to 1.1.0, then merge `feature/store-map` to `main`.
+### Checkpoint: Complete
+- [ ] Every acceptance criterion met
+- [ ] Reviewed by the human, merged
 
 ## Risks and Mitigations
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| The zone order is wrong for a real store | High | It is a default, not a verdict: two editable layers, an always-visible mode chip, and `A–Z` that never destroys the arrangement |
-| Headings cost too much of a 375 px screen | Medium | Empty zones are omitted; measure the real cost in the browser rather than estimating it |
-| The browse tree and the cart drift into different vocabularies | Medium | Both consume the same `zones` module; the parity test covers counts |
-| A custom order silently lost | High | Write-through on every mutation, and an explicit test that entering `A–Z` and returning preserves both layers |
-| Scope creep into per-store layouts | Medium | `SPEC-zones.md` refuses aisle numbers outright; zones stay coarse on purpose |
+| ODbL forbids gating the nutrition layer | High | Researched first (Task 4), before any feature or paywall exists; the branch where the paywall gates the *app* rather than the *database* is recorded separately |
+| The mirror's MIT is read as covering the data when it may only cover the mirror | High | The row is `unknown` unless a source settles it, and the row must name what would settle it; the convenient reading is explicitly not taken |
+| A research claim is paraphrased from memory and is wrong | High | Every `basis` cites a document and clause; the primary texts are fetched and cited, not recalled |
+| A verdict is mistaken for legal advice | High | Fixed framing on the document, and an explicit "what a lawyer needs" list; no enforceability statements anywhere |
+| The inventory drifts as the pipeline changes | Medium | The guard reads the real repo and the real bundle; a new committed artifact or a new OFF-sourced field without a row fails the test |
+| Scope creep into paywall implementation | Medium | Out of scope in the intent; boundaries forbid shipping a paywall in the same change |
+| Audit code leaking into the app bundle | Low | No `src/` import, asserted at the checkpoint |
 
 ## Open Questions
 
-- Whether the zone order matches a real Mercadona trip — answered by use, not by
-  more questions. The signal is how many clusters get moved.
-- Whether `Mascotas` deserves its own zone. It stays in `no-alimentacion` for now.
-- Whether a temporarily emptied zone should keep its stored order. Proposal: kept,
-  so that removing and re-adding an item cannot quietly lose an arrangement.
+- **Does the mirror's MIT extend to Mercadona's data, or only to the mirror's
+  packaging?** Load-bearing. Answered as `unknown` plus what resolves it, unless
+  Task 5 finds a source that settles it.
+- **Does the paywall gate the database or the app?** Decides `safe` vs `safe-if`
+  for the OFF-derived fields. Both branches recorded; unresolvable until a
+  feature is chosen.
+- **Hotlinking versus redistribution for the photos**, and whether gating changes
+  the analysis. Stated, not guessed.
+- **Is jurisdiction really Spain/EU, and does the app ship outside it?** Changes
+  the sui generis database-rights reading.
+- **Does `CAPABILITY-MAP.md` gain a third initiative entry?** Its map is approved
+  and gated, so this is a human decision — the plan does not assume an answer.

@@ -234,3 +234,59 @@ Still open:
 4. Whether `Mascotas` deserves its own zone. It stays in `no-alimentacion` for now.
 5. Whether a temporarily emptied zone keeps its stored product order. Proposal:
    kept, so removing and re-adding an item cannot quietly lose an arrangement.
+
+---
+
+# Initiative: Monetization + second retailer
+
+Added 2026-10-11. Intent: [INTENT-monetization.md](./INTENT-monetization.md).
+
+**Intent:** Draw the boundary a premium feature has to live inside — legal first,
+then commercial, then mechanical — and decide whether a second retailer is a
+second codebase or a data package.
+
+**Ordering note:** this map was drawn *after* `licensing` was already specified and
+planned, which inverts the usual map-then-spec order. `licensing` is folded in as
+the head of the build order rather than retro-fitted, because its scope is exactly
+what the other modules depend on.
+
+## Modules
+
+| Module id | Responsibility | Depends on |
+|---|---|---|
+| `licensing` | The legal envelope: what may be charged for, per layer, with cited clauses | — |
+| `offer` | *What* is sold, for how much, and the promise — the one-time, absolute-yes feature. The decision, not the mechanism | `licensing` |
+| `entitlement` | *Who* has paid, and what unlocks for them: purchase, verification, offline grace, restore. The first runtime third-party call the app will ever make | `offer` |
+| `branding` | Name, domain, icon and in-app identity, including whether the retailer's mark may appear in the name at all | `licensing` |
+| `launch-comms` | Getting it in front of people, within the author's employment constraints | `offer`, `branding` |
+| `retailer-abstraction` | Decide and implement the seam between retailer-agnostic core and retailer data packages, so a second retailer is data, not a codebase | `licensing` |
+| `aldi-data` | The Aldi catalogue, nutrition join, bundle, and its own envelope. First consumer of that seam | `retailer-abstraction`, `licensing` |
+
+**Build order:** `licensing` → `offer`, `branding`, `retailer-abstraction` →
+`entitlement`, `aldi-data` → `launch-comms`
+
+`launch-comms` does **not** wait on `entitlement` — an audience can be built before
+a paywall exists. `offer` **does** wait on `licensing`: deciding what to sell before
+knowing what is chargeable is how a feature gets unwound.
+
+## Invariants this initiative puts under review
+
+Found while drawing the map. Verifiable, and listed here because each one is a
+*documented decision* that a paywall ends — not a defect to patch quietly.
+
+| Invariant | Recorded in | What a paywall does to it |
+|---|---|---|
+| CSP: `script-src 'self'`, `connect-src 'self'`, `form-action 'none'`, `frame-ancestors 'none'`, `payment=()` | `public/_headers` | Blocks hosted checkout, a payment SDK, a provider form POST, an embedded frame, and the Payment Request API. `entitlement` re-decides the security posture rather than routing around it |
+| "Auth / authz / rate limiting — **N/A — by design.** No accounts, no login, no server, no user data leaves the device" | `docs/LAUNCH.md` | Stops being true the first time a purchase is verified |
+| "Anyone with the URL can use it, but it holds no user data" | `docs/LAUNCH.md` | Stops being true at the first gate |
+| "Keep all network access inside `scripts/`" | this file, *Boundaries* | A runtime entitlement check puts network access in `src/`; the boundary is amended deliberately or the module cannot ship |
+| "No runtime network requests other than product images" | `README.md` | The same fact, stated at the product level |
+
+## Boundary of this map
+
+If `retailer-abstraction` decides **fork**, then `aldi-data` leaves this initiative
+and becomes its own map in its own repository. If it decides **adapter**, `aldi-data`
+stays here as the first consumer of the seam. That decision belongs to the module;
+this map does not pre-empt it.
+
+Specs: [SPEC-licensing.md](./SPEC-licensing.md)
