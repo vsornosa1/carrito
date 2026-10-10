@@ -133,6 +133,7 @@ interface LicenceRow {
   verdict: 'safe' | 'safe-if' | 'not-safe' | 'unknown';
   requires: readonly string[];                       // e.g. ['attribution', 'share-alike']
   covers: readonly string[];                         // committed paths this row accounts for
+  fields: readonly string[];                         // leaf paths inside a covered file, e.g. 'nutrition.per100.kcal'
   basis: string;                                     // document + clause; never empty
   note?: string;                                     // only when the row needs a caveat
 }
@@ -146,6 +147,16 @@ is most of them, and is not a gap. Note the two different granularities:
 `catalog-bundle` covers the **file** `public/catalog/products.json`, while
 `off-derived-nutrition` covers **fields inside** that same file and therefore lists
 no path at all. Two rows must never claim the same file.
+
+`fields` was added the same day, for Task 3, and deliberately has a **looser** rule
+than `covers`: a field may be claimed by **more than one** row. A file has one
+identity, so exactly-one is right for it; a *value* can be derived from two sources
+at once, and pretending otherwise would make the envelope lie. `nutrition.additives`
+is the case in point — normalised E-numbers come from Open Food Facts'
+`additives_tags` **and** from our parse of Mercadona's ingredient text, so both rows
+claim it. Forcing a single claimant would have meant picking whichever source looked
+tidy, which is exactly the kind of convenient reading this envelope exists to
+refuse.
 
 ## Testing strategy
 
@@ -163,9 +174,20 @@ fixtures — the same reason `zones.test.ts` asserts against the whole catalogue
    that ignores them so the exclusion cannot become accidental.
 2. Every row has a non-empty `basis`, and every `verdict` is from the fixed
    vocabulary; an unknown verdict string fails.
-3. The OFF-derived fields **actually present** in `public/catalog/products.json`
-   are accounted for by `off-derived-nutrition`, so a new OFF-sourced field
-   cannot be added to the bundle without the envelope noticing.
+3. Every field the bundle actually ships under `nutrition` and `processing` is
+   claimed by at least one row, so a new field cannot be added to the bundle
+   without the envelope noticing. This claim is **one-way on purpose**: a field
+   may be absent from an entire bundle without anything being wrong (`offCode`
+   exists only where Open Food Facts matched), so a declared-but-absent field is
+   not a failure while a present-but-unclaimed one is.
+
+   Corrected 2026-10-11 when Task 3 was implemented: the spec originally said
+   every such field was covered by `off-derived-nutrition`, which is not true of
+   the block as built. `processing.basis`, `processing.tier` and
+   `processing.additiveMarkers` are **ours**, derived from Mercadona's ingredient
+   text, and `nutrition.additives` is fed by both sources. Attributing all of it
+   to Open Food Facts would have been the false-claim version of an envelope,
+   which is the failure this whole module is meant to prevent.
 4. The `attribution` obligation is satisfiable in fact: the app renders the
    credit (`Fuente: Open Food Facts` in `src/components/NutritionPanel.tsx`),
    asserted so a redesign cannot drop it while the envelope still claims it.

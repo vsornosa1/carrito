@@ -51,13 +51,16 @@ Spec: [SPEC-licensing.md](../.agents/docs/intent/SPEC-licensing.md)
       `public/catalog/` and `data/enriched/` maps to exactly one row. Done
       2026-10-11: rows gained a `covers` list; proved to fail by adding a file
       under `public/catalog/` and removing it again.
-- [ ] Task 3: The OFF-fields guard — the nutrition fields actually present in the
-      shipped bundle are accounted for by a row.
+- [x] Task 3: The OFF-fields guard — the nutrition fields actually present in the
+      shipped bundle are accounted for by a row. Done 2026-10-11: 15 leaf paths
+      enumerated; the spec's claim that all of them are OFF-derived was **wrong**
+      and corrected first.
 
 ### Checkpoint: Inventory
-- [ ] `npx vitest run tests/licensing.test.ts` green
-- [ ] The guard has been seen to *fail* on a deliberate drift, not just pass
-- [ ] No `src/` file imports the inventory
+- [x] `npx vitest run tests/licensing.test.ts` green — 17 tests
+- [x] The guard has been seen to *fail* on a deliberate drift, not just pass —
+      probed with a new file and with a new field, both reverted
+- [x] No `src/` file imports the inventory
 
 ### Phase 2: The layers, researched in risk order
 

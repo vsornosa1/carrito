@@ -37,6 +37,7 @@ interface LicenceRow {
   verdict: string;
   requires: readonly string[];
   covers: readonly string[];
+  fields: readonly string[];
   basis: string;
   note?: string;
 }
@@ -75,6 +76,60 @@ function declaredCovers(): string[] {
   return inventory.flatMap((row) => (Array.isArray(row.covers) ? row.covers : []));
 }
 
+/** Every field path any row claims to account for. */
+function declaredFields(): string[] {
+  return inventory.flatMap((row) => (Array.isArray(row.fields) ? row.fields : []));
+}
+
+const bundlePath = resolve(projectRoot, 'public', 'catalog', 'products.json');
+
+// The blocks of the shipped bundle whose fields carry provenance. `nutrition` is
+// the Open Food Facts join; `processing` is our own signal derived from Mercadona's
+// ingredient text. Both ship inside products.json, so both need accounting for.
+const PROVENANCE_BLOCKS = ['nutrition', 'processing'] as const;
+
+interface BundleProduct {
+  nutrition?: unknown;
+  processing?: unknown;
+}
+
+/**
+ * Records every leaf path under `prefix`. A `null` means "absent" everywhere in
+ * this bundle — missing data is null, never zero — so it is skipped rather than
+ * recorded as a field. Arrays are leaves: their elements are the data, not fields.
+ */
+function collectLeafPaths(prefix: string, value: unknown, into: Set<string>): void {
+  if (value === null || value === undefined) return;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    into.add(prefix);
+    return;
+  }
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    collectLeafPaths(`${prefix}.${key}`, child, into);
+  }
+}
+
+// The bundle is 5.5 MB; parsed once rather than once per test.
+let shippedFields: string[] | null = null;
+
+function shippedFieldPaths(): string[] {
+  if (shippedFields === null) {
+    const products = existsSync(bundlePath)
+      ? (JSON.parse(readFileSync(bundlePath, 'utf8')) as BundleProduct[])
+      : [];
+    const paths = new Set<string>();
+    for (const block of PROVENANCE_BLOCKS) {
+      for (const product of products) {
+        const value = product[block];
+        if (value === undefined) continue;
+        collectLeafPaths(block, value, paths);
+      }
+    }
+    shippedFields = [...paths].sort();
+  }
+  return shippedFields;
+}
+
 describe('licence inventory', () => {
   it('exists — the envelope has somewhere to live', () => {
     expect(existsSync(inventoryPath), 'data/licensing/inventory.json must exist').toBe(true);
@@ -96,6 +151,10 @@ describe('licence inventory', () => {
       expect(
         Array.isArray(row.covers),
         `${row.id} must declare which committed paths it accounts for`,
+      ).toBe(true);
+      expect(
+        Array.isArray(row.fields),
+        `${row.id} must declare which bundle fields it accounts for`,
       ).toBe(true);
       expect(typeof row.basis, `${row.id} must have a basis`).toBe('string');
       expect(row.licence === null || typeof row.licence === 'string', `${row.id} licence must be a string or null`).toBe(true);
@@ -196,5 +255,42 @@ describe('distributed artifact coverage', () => {
       new Set(claimed).size,
       'a committed file must be claimed by exactly one row, not several',
     ).toBe(claimed.length);
+  });
+});
+
+describe('bundle field coverage', () => {
+  it('accounts for every nutrition and processing field the bundle ships', () => {
+    const declared = new Set(declaredFields());
+    const present = shippedFieldPaths();
+
+    // Without this, a renamed block or a wrong path would make every assertion
+    // below pass over an empty list.
+    expect(present.length, 'the bundle must ship nutrition fields').toBeGreaterThan(0);
+
+    for (const path of present) {
+      expect(
+        declared.has(path),
+        `${path} ships in the bundle but no inventory row accounts for it`,
+      ).toBe(true);
+    }
+  });
+
+  it('still finds the fields this guard exists to watch', () => {
+    for (const path of ['nutrition.per100.kcal', 'nutrition.novaGroup', 'processing.tier']) {
+      expect(shippedFieldPaths(), `${path} should ship in the bundle`).toContain(path);
+    }
+  });
+
+  it('keeps the Open Food Facts credit the envelope claims is satisfied', () => {
+    // The envelope records attribution as an obligation, and as satisfied in fact.
+    // If a redesign drops the credit, that claim becomes false — so the credit is
+    // asserted here, in the same spirit as the network-hygiene guard.
+    const panel = readFileSync(
+      resolve(projectRoot, 'src', 'components', 'NutritionPanel.tsx'),
+      'utf8',
+    );
+    expect(panel, 'the Open Food Facts credit is what satisfies attribution').toContain(
+      'Fuente: Open Food Facts',
+    );
   });
 });

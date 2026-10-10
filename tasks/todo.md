@@ -66,16 +66,29 @@ for individually, so a new Open Food Facts-sourced field cannot be added to the
 bundle without the envelope noticing.
 
 **Acceptance criteria:**
-- [ ] The test reads `public/catalog/products.json` and enumerates the
-      nutrition and processing fields actually present
-- [ ] Every such field is covered by the `off-derived-nutrition` row
-- [ ] A fabricated new OFF-sourced field makes the test fail
-- [ ] The attribution obligation is asserted to be satisfiable in fact: the app
+- [x] The test reads `public/catalog/products.json` and enumerates the
+      nutrition and processing fields actually present — 15 leaf paths
+- [x] Every such field is claimed by at least one inventory row
+      (**corrected**: the criterion originally said all of them were covered by
+      `off-derived-nutrition`, which is not true of the block as built — see the
+      note below)
+- [x] A fabricated new OFF-sourced field makes the test fail
+- [x] The attribution obligation is asserted to be satisfiable in fact: the app
       renders `Fuente: Open Food Facts`, so a redesign cannot drop it while the
       envelope still claims it
 
 **Verification:**
-- [ ] `npx vitest run tests/licensing.test.ts`
+- [x] `npx vitest run tests/licensing.test.ts` — 17 passed
+- [x] Probe: `nutrition.per100.omega3` injected into a real product, guard failed
+      naming that exact path, bundle restored byte-exact from git
+
+**Note:** the original criterion — every field covered by `off-derived-nutrition` —
+turned out to be false and was corrected in the spec before implementing.
+`processing.basis`, `processing.tier` and `processing.additiveMarkers` are **ours**,
+derived from Mercadona's ingredient text, and `nutrition.additives` is fed by Open
+Food Facts' `additives_tags` *and* by our parse of Mercadona's ingredients. So that
+one field is claimed by two rows, which is why the `fields` rule is at-least-one
+while the `covers` rule stays exactly-one.
 
 **Dependencies:** Task 1
 
@@ -85,9 +98,11 @@ bundle without the envelope noticing.
 
 ## Checkpoint: After Tasks 1-3
 
-- [ ] `npx vitest run tests/licensing.test.ts` green
-- [ ] The guard has been seen to fail on a deliberate drift, not merely to pass
-- [ ] No `src/` file imports the inventory
+- [x] `npx vitest run tests/licensing.test.ts` green — 17 tests
+- [x] The guard has been seen to fail on a deliberate drift, not merely to pass —
+      probed twice: a file added under `public/catalog/`, and a field injected
+      into the bundle. Both reverted; the bundle restored byte-exact.
+- [x] No `src/` file imports the inventory — verified, zero matches
 
 ## Task 4: The ODbL layer
 
