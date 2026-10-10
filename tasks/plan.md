@@ -64,36 +64,52 @@ Spec: [SPEC-licensing.md](../.agents/docs/intent/SPEC-licensing.md)
 
 ### Phase 2: The layers, researched in risk order
 
-- [ ] Task 4: The ODbL layer — `enriched-db`, `off-derived-nutrition`,
-      `off-api-terms`, with clause citations.
-- [ ] Task 5: The Mercadona layer — `mirror`, `underlying-catalog-data`,
-      `catalog-bundle`, `photos`, `trademark`.
-- [ ] Task 6: The authored layer — `code`, `app-shell`, and the missing `LICENSE`.
+- [x] Task 4: The ODbL layer — `enriched-db`, `off-derived-nutrition`,
+      `off-api-terms`, with clause citations. Done 2026-10-11: the ODbL text and
+      Open Food Facts' terms were fetched and quoted, not recalled. The decisive
+      clauses are 4.7(b) and 4.7(c): a paywall is contemplated, and conditional
+      on the data staying free.
+- [x] Task 5: The Mercadona layer — `mirror`, `underlying-catalog-data`,
+      `catalog-bundle`, `photos`, `trademark`. Done 2026-10-11: the mirror's
+      `LICENSE` was read and is software-scoped MIT, which is what makes the
+      dataset's `license: mit` tag an `unknown` rather than a `safe`.
+- [x] Task 6: The authored layer — `code`, `app-shell`, and the missing `LICENSE`.
+      Done 2026-10-11: runtime dependencies read from their own manifests, both
+      MIT; the tool that would enumerate every transitive licence named rather
+      than claimed.
 
 ### Checkpoint: Verdicts
-- [ ] Every row has a verdict and a non-empty `basis`
-- [ ] Every `unknown` names what would resolve it
-- [ ] Review with the human before writing the document
+- [x] Every row has a verdict and a non-empty `basis`
+- [x] Every `unknown` names what would resolve it
+- [ ] Review with the human before writing the document — **overridden**: explicit
+      instruction to finish unattended, so the review moves to the morning
 
 ### Phase 3: The map
 
-- [ ] Task 7: `docs/licensing/ENVELOPE.md` — one section per layer, ending in a
+- [x] Task 7: `docs/licensing/ENVELOPE.md` — one section per layer, ending in a
       verdict and its clause, with the not-legal-advice framing and the list of
-      what a lawyer would need to see.
-- [ ] Task 8: The litmus — three plausible premium features run through the
-      envelope end to end.
+      what a lawyer would need to see. Written; human review deferred.
+- [x] Task 8: The litmus — three plausible premium features run through the
+      envelope end to end. Done: all three land on the same row, which is the
+      finding — the feature is not what decides it.
 
 ### Checkpoint: Map
-- [ ] A feature can be given a verdict without re-opening the research
+- [x] A feature can be given a verdict without re-opening the research
 
 ### Phase 4: Verification
 
-- [ ] Task 9: Prove the guard fails when it should; full suite, typecheck, lint
-      and build green.
+- [x] Task 9: Prove the guard fails when it should; full suite, typecheck, lint
+      and build green. Probed three ways: a new file, a new field, a removed row.
 
 ### Checkpoint: Complete
-- [ ] Every acceptance criterion met
-- [ ] Reviewed by the human, merged
+- [x] Every acceptance criterion met
+- [x] The envelope names the question it could not settle, and what would settle it
+- [ ] Reviewed by the human, merged — **open**: reviews deferred to the morning,
+      nothing merged
+
+> **Answer, for the morning:** the premium feature is not the blocker. The
+> catalogue's chain of title is. Six of ten rows are `unknown` and five of them
+> inherit from `underlying-catalog-data`.
 
 ## Risks and Mitigations
 

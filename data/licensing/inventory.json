@@ -3,34 +3,34 @@
     "id": "code",
     "kind": "artifact",
     "licence": null,
-    "verdict": "unknown",
+    "verdict": "safe",
     "requires": [],
     "covers": [],
     "fields": [],
-    "basis": "Repo root contains no LICENSE file (only .gitignore, README.md, package.json and config); package.json declares \"private\": true.",
-    "note": "Verdict pending Task 6 (authored layer): whether the intended state is 'unlicensed, all rights reserved' or an explicit licence. Resolved by the author deciding, and by nothing in the repo."
+    "basis": "Repo root carries no LICENSE file, and package.json declares \"private\": true. The source is authored here, so there is no third-party grant to inspect before charging.",
+    "note": "Charging for one's own code is not a licensing question. The absent LICENSE governs what *others* may do with the repo, which is why it is recorded here rather than quietly treated as a gap. Third-party dependencies, as a class: the only runtime dependencies are react 19.3.0 and react-dom 19.3.0, both MIT, read from their own package.json license fields rather than assumed; the 20 devDependencies are build-time only and are not redistributed. npm audit reports 0 vulnerabilities (docs/LAUNCH.md). Enumerating every transitive licence needs a tool rather than a reading - npx license-checker - which is not installed here and was not run, so that surface is named rather than claimed."
   },
   {
     "id": "app-shell",
     "kind": "artifact",
     "licence": null,
-    "verdict": "unknown",
+    "verdict": "safe",
     "requires": [],
     "covers": [],
     "fields": [],
-    "basis": "Authored UI copy, PWA icons and manifest live in src/ and public/; no LICENSE file covers them.",
-    "note": "Verdict pending Task 6 (authored layer), together with code. Resolved by the same decision, since the shell and the code share an author and a repository."
+    "basis": "Authored UI copy, PWA icons and manifest live in src/ and public/, are the author's own, and are not covered by any third-party grant because none is needed.",
+    "note": "Same reasoning as `code`. One live obligation does attach, from a different row: the shell has to keep rendering the Open Food Facts credit, which the guard asserts so a redesign cannot drop it."
   },
   {
     "id": "mirror",
     "kind": "source",
-    "licence": "MIT",
+    "licence": "MIT (software only)",
     "verdict": "unknown",
     "requires": [],
     "covers": [],
     "fields": [],
-    "basis": "CAPABILITY-MAP.md, Data sources: datania/mercadona-catalog on Hugging Face, listed as MIT; README.md repeats it under Licencias y atribución.",
-    "note": "Verdict pending Task 5 (Mercadona layer): whether the mirror's MIT covers only the mirror's packaging or also the product data inside it. Resolved by the licence text shipped in the mirror repository, not by the app's own README."
+    "basis": "github.com/datania/mercadona-catalog ships a LICENSE whose text is standard MIT and covers \"this software and associated documentation files (the \\\"Software\\\")\", Copyright (c) 2025 David Gasquez. The Hugging Face dataset card separately asserts `license: mit` for the dataset itself.",
+    "note": "Unknown because the only licence *text* in the mirror is software-scoped, while the dataset-level `mit` is a bare front-matter assertion with nothing behind it. The mirror's own README says the catalogue is exported from Mercadona's unofficial API, and its api.md records that robots.txt disallows /api for crawlers. Resolved by the mirror's author stating the data licence explicitly, or by sourcing the catalogue from a party that holds rights in it."
   },
   {
     "id": "underlying-catalog-data",
@@ -45,8 +45,8 @@
       "processing.basis",
       "processing.tier"
     ],
-    "basis": "Names, prices, categories, ingredients, allergens and photos originate with Mercadona; the mirror only republishes them. Recorded as uncertain provenance in CAPABILITY-MAP.md.",
-    "note": "Verdict pending Task 5 (Mercadona layer). Resolved only by what the mirror's own licence says about the data it republishes — a permissive licence on a republisher does not itself grant rights in the republished data."
+    "basis": "Names, prices, categories, ingredients, allergens and photos originate with Mercadona. No grant from Mercadona exists anywhere in the chain: the data arrives as an MIT-tagged export of an unofficial API, and the mirror's api.md states robots.txt disallows /api for crawlers.",
+    "note": "Unknown, and load-bearing for the whole catalogue. Mercadona's own terms were never engaged by this project because the data arrives through a third party, so the project cannot verify its chain of title at all. Resolved by a licence from Mercadona, or by advice on whether this data may be redistributed. Deliberately not softened to safe on the strength of the mirror's tag - a permissive licence on a republisher grants nothing in the republished data."
   },
   {
     "id": "catalog-bundle",
@@ -56,8 +56,8 @@
     "requires": [],
     "covers": ["public/catalog/products.json"],
     "fields": [],
-    "basis": "public/catalog/products.json is committed; .gitignore states the choice is deliberate so deploys need no network.",
-    "note": "Verdict pending Task 5 (Mercadona layer). Resolved by the mirror and underlying-data rows, since the bundle is a derivative of both."
+    "basis": "public/catalog/products.json is committed and served to every visitor, so copies reach the public; .gitignore states the commit is deliberate so deploys need no network.",
+    "note": "Unknown, and inherited rather than assessed: the bundle is a derivative of `underlying-catalog-data` and contains the fields of `off-derived-nutrition`. This row cannot be resolved before those two, and it is the row that decides whether the product can be sold at all."
   },
   {
     "id": "photos",
@@ -67,8 +67,8 @@
     "requires": [],
     "covers": [],
     "fields": [],
-    "basis": "Image bytes never enter the repo: the app serves https://prod-mercadona.imgix.net URLs at runtime, allowed by the CSP img-src directive in public/_headers.",
-    "note": "Verdict pending Task 5 (Mercadona layer): hotlinking rather than redistribution, and whether gating access changes that analysis. Resolved by the terms applicable to serving a third party's CDN URLs from a paid product."
+    "basis": "Image bytes never enter the repo: the app serves https://prod-mercadona.imgix.net URLs at runtime, permitted by the CSP img-src directive in public/_headers.",
+    "note": "Unknown. Not redistributing the bytes weakens the copyright question but does not answer it: the app still loads Mercadona's imagery from Mercadona's CDN with no grant, and hotlinking from a paid product is exactly the kind of use a retailer may object to. Resolved by the terms applicable to hotlinking a third party's CDN URLs, and by whether gating access changes the analysis."
   },
   {
     "id": "trademark",
@@ -78,26 +78,26 @@
     "requires": [],
     "covers": [],
     "fields": [],
-    "basis": "The retailer's name appears in the product name (README.md, package.json \"mercadonapp\"), the page title and in-app copy. Not a data licence; a right of its own.",
-    "note": "Verdict pending Task 5 (Mercadona layer) and consumed by the branding module. Resolved by the applicable trademark position on using a retailer mark to describe compatibility with that retailer, and whether charging changes it."
+    "basis": "The retailer's name appears in the product name (README.md, package.json \"mercadonapp\"), the page title, the icon and in-app copy. This is a right of its own and is not addressed by any data licence.",
+    "note": "Unknown. Nominative use to describe compatibility is recognised in some jurisdictions and not others, and no data licence helps here - Open Food Facts' own terms say explicitly that their licences cover only the rights of Open Food Facts and its contributors, and that third-party trademark rights may still apply. Resolved by a trademark position for ES/EU on using a retailer mark in a paid product's name and icon. Consumed by the `branding` module, which is why it is recorded even though it is not a licence."
   },
   {
     "id": "enriched-db",
     "kind": "artifact",
-    "licence": null,
-    "verdict": "unknown",
-    "requires": [],
+    "licence": "ODbL 1.0",
+    "verdict": "safe-if",
+    "requires": ["attribution", "share-alike", "source-offer"],
     "covers": ["data/enriched/enriched.json"],
     "fields": [],
-    "basis": "data/enriched/enriched.json is committed; .gitignore states it is committed on purpose because rebuilding costs thousands of Open Food Facts requests.",
-    "note": "Verdict pending Task 4 (ODbL layer): whether a committed derivative database triggers share-alike. Resolved by the ODbL text on distributing a Derivative Database."
+    "basis": "data/enriched/enriched.json is committed, so it is conveyed to the public. ODbL 4.4(b): \"Extraction or Re-utilisation of the whole or a Substantial part of the Contents into a new database is a Derivative Database and must comply with Section 4.4\". ODbL 4.4(a): a Publicly Used Derivative Database must be \"only under the terms of ... This License\". ODbL 4.2 sets the notices for Conveying it.",
+    "note": "Safe-if, not unknown: commercial use is authorised in terms. ODbL 3.1 grants rights that \"explicitly include commercial use, and do not exclude any field of endeavour\", and Open Food Facts' terms repeat it for their content. The conditions are that this committed file carries the ODbL notices and is offered under ODbL, and that recipients are offered a machine-readable copy - ODbL 4.6, free of charge over the internet. Nothing in it requires charging to be avoided."
   },
   {
     "id": "off-derived-nutrition",
     "kind": "artifact",
-    "licence": "ODbL 1.0",
-    "verdict": "unknown",
-    "requires": [],
+    "licence": "ODbL 1.0 (database) / DbCL 1.0 (individual contents)",
+    "verdict": "safe-if",
+    "requires": ["attribution", "share-alike", "source-offer", "no-additional-restrictions"],
     "covers": [],
     "fields": [
       "nutrition.additives",
@@ -113,18 +113,18 @@
       "nutrition.per100.sugars",
       "nutrition.source"
     ],
-    "basis": "README.md Licencias y atribución, and CAPABILITY-MAP.md Data sources: numeric nutrition, nova_group and additives_tags come from Open Food Facts, ODbL 1.0, attribution required.",
-    "note": "Verdict pending Task 4 (ODbL layer), and the sharpest edge in the envelope: these fields ship inside public/catalog/products.json. Resolved by the ODbL text on share-alike and on imposing additional restrictions when redistributing."
+    "basis": "These fields ship inside public/catalog/products.json. Open Food Facts' terms: the database is under ODbL, individual contents under DbCL 1.0, product images under CC BY-SA 3.0. DbCL 2.1 grants a copyright licence whose rights \"explicitly include commercial use\"; DbCL 2.2 requires compliance with the ODbL; DbCL 2.3 states it \"does not cover any Database Rights, Database copyright, or contract over the Contents as part of the Database\".",
+    "note": "Safe-if, and the sharpest edge in the envelope. ODbL 4.7(c) contemplates access control directly: \"you may place this Database or a Derivative Database in an authenticated environment, behind a password, or within a similar access control scheme\". So a paywall is not forbidden by share-alike. But 4.7(b) makes it conditional - terms that restrict access are permitted only if a copy is also made available to the recipient \"without additional fee\" - and 4.6 independently requires offering a machine-readable copy of the entire Derivative Database, free of charge over the internet. Practical reading: charge for the app, keep the data free. Two questions stay open and are not guessable now: whether gating applies to the app or to the database (both are safe-if, with different obligations), and whether this extraction is a \"Substantial\" part of Open Food Facts' Contents at all, which decides whether 4.4 attaches - the definition counts quantity or quality, and repeated systematic extraction of insubstantial parts may still amount to a Substantial one."
   },
   {
     "id": "off-api-terms",
     "kind": "source",
-    "licence": "ODbL 1.0",
+    "licence": "ODbL 1.0 / DbCL 1.0",
     "verdict": "unknown",
     "requires": [],
     "covers": [],
     "fields": [],
-    "basis": "The build-time calls documented in CAPABILITY-MAP.md Data sources (world.openfoodfacts.org API v2), made once in scripts/, cached per EAN.",
-    "note": "Verdict pending Task 4 (ODbL layer): the terms the calls were made under, as distinct from the licence of the data retrieved. Resolved by the API usage terms alongside the ODbL text."
+    "basis": "The build-time calls documented in CAPABILITY-MAP.md Data sources (world.openfoodfacts.org API v2), made once and cached per EAN. The terms-of-use page was read on 2026-10-11: it covers licences, attribution and re-use, and states that its use conditions, warnings and limitations also apply to re-users.",
+    "note": "Unknown because the terms page read says nothing specific about programmatic access: no API usage policy, no rate limit and no request ceiling were located. Resolved by Open Food Facts' API documentation and any published request limits, which is a different document from the licence."
   }
 ]

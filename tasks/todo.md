@@ -111,19 +111,25 @@ while the `covers` rule stays exactly-one.
 that decides it.
 
 **Acceptance criteria:**
-- [ ] The ODbL obligations that matter are named: attribution, share-alike on a
+- [x] The ODbL obligations that matter are named: attribution, share-alike on a
       Derivative Database, no additional restrictions on redistribution, and the
       source-offer requirement
-- [ ] The distinction between *using* the database and *distributing* a
+- [x] The distinction between *using* the database and *distributing* a
       Derivative Database is drawn explicitly, and mapped onto what this repo
       commits
-- [ ] Both branches of the gate-the-database / gate-the-app question are recorded
+- [x] Both branches of the gate-the-database / gate-the-app question are recorded
       with their differing verdicts
-- [ ] Every claim cites the licence text and clause, fetched rather than recalled
+- [x] Every claim cites the licence text and clause, fetched rather than recalled
 
 **Verification:**
-- [ ] `npx vitest run tests/licensing.test.ts`
-- [ ] `docs/licensing/ENVELOPE.md` section reads as citations, not paraphrase
+- [x] `npx vitest run tests/licensing.test.ts` — 17 passed
+- [x] `docs/licensing/ENVELOPE.md` section 2 reads as quotations with clause
+      numbers, not paraphrase
+
+**Note:** the finding that changed the shape of this module — **ODbL 4.7(b)** and
+**4.7(c)**. 4.7(c) permits a paywall by name ("behind a password"), and 4.7(b)
+makes it conditional on also offering a copy "without additional fee". So
+share-alike does not forbid charging; it requires the data to stay free.
 
 **Dependencies:** Tasks 1, 2, 3
 
@@ -138,17 +144,24 @@ and `trademark` — the rows where the provenance is genuinely unsettled, and th
 one row that is a right rather than a licence.
 
 **Acceptance criteria:**
-- [ ] The mirror's MIT is stated for exactly what it covers; whether it reaches
+- [x] The mirror's MIT is stated for exactly what it covers; whether it reaches
       the underlying data is `unknown` and the row names what would settle it
-- [ ] Hotlinking is separated from redistribution, and whether gating changes the
+- [x] Hotlinking is separated from redistribution, and whether gating changes the
       analysis is stated rather than guessed
-- [ ] The trademark row states the exposure and where the name and imagery are
+- [x] The trademark row states the exposure and where the name and imagery are
       used, without asserting an outcome
-- [ ] No row takes the convenient reading of an ambiguous licence
+- [x] No row takes the convenient reading of an ambiguous licence
 
 **Verification:**
-- [ ] `npx vitest run tests/licensing.test.ts`
-- [ ] Human review of the two `unknown` rows
+- [x] `npx vitest run tests/licensing.test.ts` — 17 passed
+- [ ] Human review of the two `unknown` rows — **deferred to the morning**;
+      the author said to finish unattended, so this is the one criterion in this
+      task left open on purpose
+
+**Note:** the mirror's `LICENSE` text was read, not assumed. It is standard MIT
+over *"this software and associated documentation files (the 'Software')"*,
+copyright 2025 David Gasquez — and the repo ships a scraper. That is what turns
+the dataset card's bare `license: mit` into an `unknown` rather than a `safe`.
 
 **Dependencies:** Tasks 1, 2, 3
 
@@ -162,14 +175,17 @@ one row that is a right rather than a licence.
 finding that there is no `LICENSE` file and `package.json` is `"private": true`.
 
 **Acceptance criteria:**
-- [ ] The row records that the repo is currently unlicensed and that this is a
+- [x] The row records that the repo is currently unlicensed and that this is a
       deliberate state to confirm, not an oversight to fix silently
-- [ ] Third-party dependencies are accounted for as a class, with the licence
-      surface stated and the tool that reports it named
-- [ ] The verdict reflects that authored code is the author's to license
+- [x] Third-party dependencies are accounted for as a class, with the licence
+      surface stated and the tool that reports it named — react and react-dom,
+      both MIT, read from their own manifests; the 20 devDependencies are
+      build-only and not redistributed; `npx license-checker` named as what would
+      enumerate every transitive licence, and explicitly not run
+- [x] The verdict reflects that authored code is the author's to license
 
 **Verification:**
-- [ ] `npx vitest run tests/licensing.test.ts`
+- [x] `npx vitest run tests/licensing.test.ts` — 17 passed
 
 **Dependencies:** Tasks 1, 2, 3
 
@@ -179,9 +195,11 @@ finding that there is no `LICENSE` file and `package.json` is `"private": true`.
 
 ## Checkpoint: After Tasks 4-6
 
-- [ ] Every row has a verdict and a non-empty `basis`
-- [ ] Every `unknown` names what would resolve it
-- [ ] Review with the human before the document is written
+- [x] Every row has a verdict and a non-empty `basis`
+- [x] Every `unknown` names what would resolve it
+- [ ] Review with the human before the document is written — **overridden by
+      explicit instruction**: the author said to finish the rest unattended, so
+      the document was written and the review moves to the morning
 
 ## Task 7: The envelope document
 
@@ -189,17 +207,17 @@ finding that there is no `LICENSE` file and `package.json` is `"private": true`.
 section per layer, each ending in a verdict and the clause that decides it.
 
 **Acceptance criteria:**
-- [ ] One section per layer, in risk order, each ending in a verdict plus its
+- [x] One section per layer, in risk order, each ending in a verdict plus its
       clause
-- [ ] The document states plainly that it is not legal advice
-- [ ] It lists what a lawyer would need to see to answer properly
-- [ ] There is a summary table of every row, so the whole envelope is visible
+- [x] The document states plainly that it is not legal advice
+- [x] It lists what a lawyer would need to see to answer properly
+- [x] There is a summary table of every row, so the whole envelope is visible
       without reading the sections
-- [ ] No sentence asserts enforceability or predicts a dispute's outcome
+- [x] No sentence asserts enforceability or predicts a dispute's outcome
 
 **Verification:**
-- [ ] Human review of the document
-- [ ] `npx vitest run tests/licensing.test.ts`
+- [ ] Human review of the document — **deferred to the morning** (`docs/licensing/ENVELOPE.md`)
+- [x] `npx vitest run tests/licensing.test.ts` — 17 passed
 
 **Dependencies:** Tasks 4, 5, 6
 
@@ -214,16 +232,24 @@ plausible premium features and place each against the envelope without
 re-opening the research.
 
 **Acceptance criteria:**
-- [ ] Three features are run through: the nutrition/swaps insight layer, the
+- [x] Three features are run through: the nutrition/swaps insight layer, the
       cart and trip-order layer, and whole-app access
-- [ ] Each gets `safe` / `safe-if-X` / `not-safe` with the clause that decides it
-- [ ] A feature that lands on `unknown` says so, and says what would move it
-- [ ] Running the litmus requires no new research — if it does, the envelope is
+- [x] Each gets `safe` / `safe-if-X` / `not-safe` with the clause that decides it
+- [x] A feature that lands on `unknown` says so, and says what would move it
+- [x] Running the litmus requires no new research — if it does, the envelope is
       incomplete and the task says which row is missing
 
 **Verification:**
-- [ ] `npx vitest run tests/licensing.test.ts`
-- [ ] Human review: can a feature be placed without asking a follow-up question?
+- [x] `npx vitest run tests/licensing.test.ts` — 17 passed
+- [ ] Human review: can a feature be placed without asking a follow-up question? —
+      **deferred to the morning**
+
+**Note:** the litmus produced a result worth more than three verdicts. All three
+features land on the *same* row — `underlying-catalog-data` — because gating the
+cart rather than the nutrition panel changes who receives the catalogue, not
+whether it may be redistributed. So **the feature choice does not move the
+answer.** Only one thing distinguishes the features: whether the gate sits on the
+app or on the data, which decides whether ODbL 4.7(b) attaches.
 
 **Dependencies:** Task 7
 
@@ -233,7 +259,7 @@ re-opening the research.
 
 ## Checkpoint: After Task 8
 
-- [ ] A proposed feature can be given a verdict without re-opening the research
+- [x] A proposed feature can be given a verdict without re-opening the research
 
 ## Task 9: Verification
 
@@ -241,14 +267,21 @@ re-opening the research.
 to green.
 
 **Acceptance criteria:**
-- [ ] A deliberately removed row fails the test, observed and then reverted
-- [ ] A deliberately added OFF-sourced field fails the test, observed and then
-      reverted
-- [ ] `npm test`, `npm run typecheck`, `npm run lint`, `npm run build` all green
-- [ ] `git status` shows no stray artifact left by the deliberate-drift checks
+- [x] A deliberately removed row fails the test, observed and then reverted —
+      `photos` removed, guard reported the missing id, restored to 10 rows from a
+      local backup (**not** `git checkout`, which would have reverted the
+      researched rows)
+- [x] A deliberately added OFF-sourced field fails the test, observed and then
+      reverted — `nutrition.per100.omega3` injected, caught by exact path,
+      bundle restored byte-exact
+- [x] `npm test`, `npm run typecheck`, `npm run lint`, `npm run build` all green —
+      548 tests
+- [x] `git status` shows no stray artifact left by the deliberate-drift checks —
+      no probe files, no backups
 
 **Verification:**
-- [ ] `npm test`, `npm run typecheck`, `npm run lint`, `npm run build`
+- [x] `npm test` — 548 passed; `npm run typecheck`, `npm run lint`,
+      `npm run build` all clean
 
 **Dependencies:** Tasks 1-8
 
@@ -258,6 +291,24 @@ to green.
 
 ## Checkpoint: Complete
 
-- [ ] Every acceptance criterion met
-- [ ] The envelope names the question it could not settle, and what would settle it
-- [ ] Reviewed by the human, merged
+- [x] Every acceptance criterion met
+- [x] The envelope names the question it could not settle, and what would settle it
+- [ ] Reviewed by the human, merged — **open**: three reviews are deferred to the
+      morning by explicit instruction, and nothing is merged
+
+## Where this stopped
+
+Tasks 1-9 are implemented and committed. What remains is not implementation:
+
+1. **Three human reviews**, deliberately deferred: the two `unknown` Mercadona
+   rows, the document, and the litmus.
+2. **The `[Sin publicar]` changelog entry** for the ConfirmDialog feature —
+   still unwritten, because describing the author's own feature is the author's
+   call.
+3. **None of it is merged**, and no branch was cut; the work sits on `main` in
+   four commits.
+
+The envelope's own answer, recorded so the morning does not have to re-derive it:
+**the premium feature is not the blocker — the catalogue's chain of title is.**
+Six of ten rows are `unknown` and five of them inherit from
+`underlying-catalog-data`.
