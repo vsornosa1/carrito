@@ -77,9 +77,27 @@ export function CartScreen({
 
   const missing = cart.items.filter((item) => !products.some((p) => p.id === item.productId));
 
-  // Which destructive question is on screen, if any. The dialogs are rendered
-  // always and opened by this, so their state has one owner.
+  // Which destructive question is on screen, if any. The dialog is rendered always
+  // and opened by this, so its content and its open state have one owner.
   const [asking, setAsking] = useState<'clear' | 'reset' | null>(null);
+
+  // Neither action can be undone, so neither happens until it has been asked about.
+  // Started on the safe choice by `ConfirmDialog`, which focuses Cancelar.
+  const questions = {
+    clear: {
+      title: '¿Vaciar la lista?',
+      message: `La lista quedará vacía — ${pluralise(cart.items.length, 'producto', 'productos')}.`,
+      confirmLabel: 'Vaciar',
+      confirm: onClear,
+    },
+    reset: {
+      title: '¿Restablecer el orden?',
+      message: 'Volverás al orden de compra propuesto y se descartará el tuyo.',
+      confirmLabel: 'Restablecer',
+      confirm: () => onOrderChange(resetOrder()),
+    },
+  };
+  const question = asking === null ? null : questions[asking];
 
   if (cart.items.length === 0) {
     return (
@@ -196,11 +214,11 @@ export function CartScreen({
 
           <div className="cart-actions">
             {isCustomised(order) ? (
-              <button type="button" className="cart-action" onClick={handleReset}>
+              <button type="button" className="cart-action" onClick={() => setAsking('reset')}>
                 Restablecer orden
               </button>
             ) : null}
-            <button type="button" className="cart-clear" onClick={handleClear}>
+            <button type="button" className="cart-clear" onClick={() => setAsking('clear')}>
               Vaciar lista
             </button>
           </div>
@@ -208,6 +226,18 @@ export function CartScreen({
 
         <CartSummary total={total} />
       </div>
+
+      <ConfirmDialog
+        open={question !== null}
+        title={question?.title ?? ''}
+        message={question?.message ?? ''}
+        confirmLabel={question?.confirmLabel ?? ''}
+        onConfirm={() => {
+          question?.confirm();
+          setAsking(null);
+        }}
+        onCancel={() => setAsking(null)}
+      />
     </section>
   );
 }
