@@ -39,14 +39,19 @@ to exactly one row, so a new committed artifact cannot enter the envelope
 silently.
 
 **Acceptance criteria:**
-- [ ] Every committed file under `public/catalog/` maps to exactly one row
-- [ ] Every committed file under `data/enriched/` maps to exactly one row
-- [ ] `data/raw/` and `data/cache/` are **not** required to map — they are
+- [x] Every committed file under `public/catalog/` maps to exactly one row
+- [x] Every committed file under `data/enriched/` maps to exactly one row
+- [x] `data/raw/` and `data/cache/` are **not** required to map — they are
       gitignored, and the test says so rather than leaving it implicit
-- [ ] Adding a committed file under either directory without a row fails the test
+- [x] Adding a committed file under either directory without a row fails the test
 
 **Verification:**
-- [ ] `npx vitest run tests/licensing.test.ts`
+- [x] `npx vitest run tests/licensing.test.ts` — 14 passed
+- [x] Probe: `public/catalog/__drift-probe.json` added, guard failed naming that
+      exact file, probe removed
+
+**Note:** the row contract gained `covers` for this, which is a data-model change,
+so [SPEC-licensing.md](../.agents/docs/intent/SPEC-licensing.md) was updated first.
 
 **Dependencies:** Task 1
 

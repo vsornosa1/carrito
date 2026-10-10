@@ -132,10 +132,20 @@ interface LicenceRow {
   licence: string | null;                            // null only when genuinely unknown
   verdict: 'safe' | 'safe-if' | 'not-safe' | 'unknown';
   requires: readonly string[];                       // e.g. ['attribution', 'share-alike']
+  covers: readonly string[];                         // committed paths this row accounts for
   basis: string;                                     // document + clause; never empty
   note?: string;                                     // only when the row needs a caveat
 }
 ```
+
+`covers` was added 2026-10-11, when Task 2 was implemented: "every committed file
+maps to exactly one row" needs a mechanism, and the association belongs in the
+inventory rather than in the test, so that reading the inventory tells you what a
+row accounts for. A row that accounts for no committed file carries `[]` — which
+is most of them, and is not a gap. Note the two different granularities:
+`catalog-bundle` covers the **file** `public/catalog/products.json`, while
+`off-derived-nutrition` covers **fields inside** that same file and therefore lists
+no path at all. Two rows must never claim the same file.
 
 ## Testing strategy
 
@@ -143,7 +153,14 @@ Vitest, in `tests/licensing.test.ts`, run against the real repo rather than
 fixtures — the same reason `zones.test.ts` asserts against the whole catalogue:
 
 1. Every committed file under `public/catalog/` and `data/enriched/` maps to
-   exactly one inventory row — no artifact silently outside the envelope.
+   exactly one inventory row — no artifact silently outside the envelope. The
+   mapping is each row's `covers` list, and the guard asserts both directions: no
+   committed file unclaimed, and no row claiming a file that is not there.
+   Coverage is deliberately scoped to those two directories — the redistributed
+   data. Enumerating the source tree would add hundreds of paths that no licence
+   question turns on, and a guard that noisy stops being read. `data/raw/` and
+   `data/cache/` are skipped because they are gitignored, and the guard asserts
+   that ignores them so the exclusion cannot become accidental.
 2. Every row has a non-empty `basis`, and every `verdict` is from the fixed
    vocabulary; an unknown verdict string fails.
 3. The OFF-derived fields **actually present** in `public/catalog/products.json`

@@ -5,6 +5,7 @@
     "licence": null,
     "verdict": "unknown",
     "requires": [],
+    "covers": [],
     "basis": "Repo root contains no LICENSE file (only .gitignore, README.md, package.json and config); package.json declares \"private\": true.",
     "note": "Verdict pending Task 6 (authored layer): whether the intended state is 'unlicensed, all rights reserved' or an explicit licence. Resolved by the author deciding, and by nothing in the repo."
   },
@@ -14,6 +15,7 @@
     "licence": null,
     "verdict": "unknown",
     "requires": [],
+    "covers": [],
     "basis": "Authored UI copy, PWA icons and manifest live in src/ and public/; no LICENSE file covers them.",
     "note": "Verdict pending Task 6 (authored layer), together with code. Resolved by the same decision, since the shell and the code share an author and a repository."
   },
@@ -23,6 +25,7 @@
     "licence": "MIT",
     "verdict": "unknown",
     "requires": [],
+    "covers": [],
     "basis": "CAPABILITY-MAP.md, Data sources: datania/mercadona-catalog on Hugging Face, listed as MIT; README.md repeats it under Licencias y atribución.",
     "note": "Verdict pending Task 5 (Mercadona layer): whether the mirror's MIT covers only the mirror's packaging or also the product data inside it. Resolved by the licence text shipped in the mirror repository, not by the app's own README."
   },
@@ -32,6 +35,7 @@
     "licence": null,
     "verdict": "unknown",
     "requires": [],
+    "covers": [],
     "basis": "Names, prices, categories, ingredients, allergens and photos originate with Mercadona; the mirror only republishes them. Recorded as uncertain provenance in CAPABILITY-MAP.md.",
     "note": "Verdict pending Task 5 (Mercadona layer). Resolved only by what the mirror's own licence says about the data it republishes — a permissive licence on a republisher does not itself grant rights in the republished data."
   },
@@ -41,6 +45,7 @@
     "licence": null,
     "verdict": "unknown",
     "requires": [],
+    "covers": ["public/catalog/products.json"],
     "basis": "public/catalog/products.json is committed; .gitignore states the choice is deliberate so deploys need no network.",
     "note": "Verdict pending Task 5 (Mercadona layer). Resolved by the mirror and underlying-data rows, since the bundle is a derivative of both."
   },
@@ -50,6 +55,7 @@
     "licence": null,
     "verdict": "unknown",
     "requires": [],
+    "covers": [],
     "basis": "Image bytes never enter the repo: the app serves https://prod-mercadona.imgix.net URLs at runtime, allowed by the CSP img-src directive in public/_headers.",
     "note": "Verdict pending Task 5 (Mercadona layer): hotlinking rather than redistribution, and whether gating access changes that analysis. Resolved by the terms applicable to serving a third party's CDN URLs from a paid product."
   },
@@ -59,6 +65,7 @@
     "licence": null,
     "verdict": "unknown",
     "requires": [],
+    "covers": [],
     "basis": "The retailer's name appears in the product name (README.md, package.json \"mercadonapp\"), the page title and in-app copy. Not a data licence; a right of its own.",
     "note": "Verdict pending Task 5 (Mercadona layer) and consumed by the branding module. Resolved by the applicable trademark position on using a retailer mark to describe compatibility with that retailer, and whether charging changes it."
   },
@@ -68,6 +75,7 @@
     "licence": null,
     "verdict": "unknown",
     "requires": [],
+    "covers": ["data/enriched/enriched.json"],
     "basis": "data/enriched/enriched.json is committed; .gitignore states it is committed on purpose because rebuilding costs thousands of Open Food Facts requests.",
     "note": "Verdict pending Task 4 (ODbL layer): whether a committed derivative database triggers share-alike. Resolved by the ODbL text on distributing a Derivative Database."
   },
@@ -77,6 +85,7 @@
     "licence": "ODbL 1.0",
     "verdict": "unknown",
     "requires": [],
+    "covers": [],
     "basis": "README.md Licencias y atribución, and CAPABILITY-MAP.md Data sources: numeric nutrition, nova_group and additives_tags come from Open Food Facts, ODbL 1.0, attribution required.",
     "note": "Verdict pending Task 4 (ODbL layer), and the sharpest edge in the envelope: these fields ship inside public/catalog/products.json. Resolved by the ODbL text on share-alike and on imposing additional restrictions when redistributing."
   },
@@ -86,6 +95,7 @@
     "licence": "ODbL 1.0",
     "verdict": "unknown",
     "requires": [],
+    "covers": [],
     "basis": "The build-time calls documented in CAPABILITY-MAP.md Data sources (world.openfoodfacts.org API v2), made once in scripts/, cached per EAN.",
     "note": "Verdict pending Task 4 (ODbL layer): the terms the calls were made under, as distinct from the licence of the data retrieved. Resolved by the API usage terms alongside the ODbL text."
   }

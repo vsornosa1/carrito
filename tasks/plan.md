@@ -47,8 +47,10 @@ Spec: [SPEC-licensing.md](../.agents/docs/intent/SPEC-licensing.md)
 - [x] Task 1: The row contract and the ten rows — `data/licensing/inventory.json`,
       vocabulary and basis enforced by test. Done 2026-10-11: ten rows seeded
       `unknown` with what would resolve each; contract green (9 tests).
-- [ ] Task 2: The completeness guard — every committed artifact under
-      `public/catalog/` and `data/enriched/` maps to exactly one row.
+- [x] Task 2: The completeness guard — every committed artifact under
+      `public/catalog/` and `data/enriched/` maps to exactly one row. Done
+      2026-10-11: rows gained a `covers` list; proved to fail by adding a file
+      under `public/catalog/` and removing it again.
 - [ ] Task 3: The OFF-fields guard — the nutrition fields actually present in the
       shipped bundle are accounted for by a row.
 
