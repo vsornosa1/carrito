@@ -56,6 +56,18 @@ export function App() {
       return;
     }
     window.scrollTo({ top: 0 });
+
+    // Never take the caret off someone who is typing. Opening a product and then typing
+    // a second character is one keystroke that changes `viewKey`, and this effect used to
+    // move focus into `<main>` on the way past — so the search box lost focus after the
+    // first letter and "search" meant one character at a time, filtering on that.
+    const active = document.activeElement;
+    const typing =
+      active instanceof HTMLInputElement ||
+      active instanceof HTMLTextAreaElement ||
+      (active instanceof HTMLElement && active.isContentEditable);
+    if (typing) return;
+
     mainRef.current?.focus({ preventScroll: true });
   }, [viewKey]);
 
@@ -180,23 +192,20 @@ export function App() {
       <AppHeader
         query={query}
         onQueryChange={search}
-        activeTab={selected === null ? tab : null}
+        activeTab={tab}
         onSelectTab={selectTab}
         cartCount={totals.units}
         cartTotal={totals.total}
-        // The tabs are absent exactly when the bar has to carry the list.
-        listButton={!isDesktop && selected !== null}
       />
 
       <main className="app-main" ref={mainRef} tabIndex={-1}>
         {content}
       </main>
 
-      {/* A phone hides the tabs while a product is open — it is a pushed view
-          with its own way back, and tabs underneath invite losing your place.
-          On a window the tabs live in the app bar and stay, because an app bar
-          that empties itself is a dead end. */}
-      {selected === null && !isDesktop ? (
+      {/* The tabs stay put, product open or not. They used to be hidden for a pushed
+          view and replaced by a button in the app bar; the bar now carries nothing but
+          search, and a nav that comes and goes is one you have to go looking for. */}
+      {!isDesktop ? (
         <BottomNav
           active={tab}
           cartCount={totals.units}

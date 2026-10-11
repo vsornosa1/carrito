@@ -160,6 +160,27 @@ describe('App — searching from inside a product', () => {
 
     expect(screen.getByRole('button', { name: /Volver/ })).toBeInTheDocument();
   });
+
+  /*
+    The bug that made search "one character at a time". Closing the product changes
+    `viewKey`, and the view-change effect moved focus into `<main>` on the way past — so
+    the caret left the field after the first letter and the second one went nowhere.
+    Asserting the value, not just the focus: with the bug the value only ever grew by one
+    character.
+  */
+  it('keeps the caret in the field while you type a second character', async () => {
+    const user = renderApp();
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+
+    await user.type(searchField(), 'platano');
+    await user.click((await screen.findAllByRole('button', { name: /Plátano de Canarias/ }))[0]!);
+    await screen.findByRole('button', { name: /Volver/ });
+
+    await user.type(searchField(), ' le');
+
+    expect(searchField()).toHaveFocus();
+    expect(searchField()).toHaveValue('platano le');
+  });
 });
 
 describe('App — searching from anywhere', () => {
@@ -221,7 +242,14 @@ describe('App — the list', () => {
 });
 
 describe('App — a product', () => {
-  it('opens from the results and steps the phone navigation aside', async () => {
+  /*
+    Reversed on purpose, and this pins the reversal. The tabs used to be hidden for a
+    product — "a pushed view with its own way back" — with a list button in the app bar
+    standing in for them. The bar now carries nothing but search, and the nav stays:
+    a nav that comes and goes is one you have to go looking for, and the way back is
+    the one thing you always want.
+  */
+  it('keeps the phone navigation in place while a product is open', async () => {
     const user = renderApp();
     await screen.findByRole('button', { name: /Fruta y verdura/ });
     await user.type(searchField(), 'platano');
@@ -230,7 +258,11 @@ describe('App — a product', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Plátano de Canarias IGP' }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('navigation', { name: 'Secciones' })).toBeNull();
+    expect(screen.getByRole('navigation', { name: 'Secciones' })).toBeInTheDocument();
+    // And the bar is not carrying a second way to the cart. Scoped to the header by
+    // class: matching on the name alone finds the bottom nav's own Carrito tab, which is
+    // the thing this change put back.
+    expect(document.querySelector('.app-header__list')).toBeNull();
   });
 
   it('goes back to the results you came from', async () => {
