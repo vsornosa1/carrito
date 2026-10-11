@@ -4,6 +4,23 @@ Tu asistente de nutrición para la compra en Mercadona. Una PWA instalable que t
 
 Instalable, funciona sin conexión, y **no hace ninguna petición a los servidores de Mercadona**: el catálogo y la nutrición se resuelven en tiempo de construcción y se sirven como datos estáticos.
 
+Es **gratis**: sin cuentas, sin anuncios y sin nada que comprar. Si te resulta útil, puedes [invitarme a un café](https://ko-fi.com/sornosa).
+
+## Cómo se sirve
+
+Dos entradas, un despliegue:
+
+- **`/`** — la página de presentación. Paquete propio e identidad propia, con framer-motion para las animaciones. **No registra ningún service worker y no descarga el catálogo**: quien llega por un enlace compartido se trae una página, no 5,8 MB de datos de producto.
+- **`/app`** — la aplicación. Aquí sí se registra el service worker, con ámbito `/app/`, y aquí sí se precachea el catálogo, que es de quien usa la app.
+
+Estrechar el ámbito es lo que mantiene el catálogo fuera de `/`, y estrechar un ámbito nunca necesita cabeceras: `public/_headers` no cambia.
+
+## Despliegue
+
+Estático. En Cloudflare Pages: comando `npm run build`, salida `dist`. La versión de Node la da `.nvmrc` — 22, porque los scripts de datos usan el *type stripping* nativo.
+
+`public/_headers` lo respetan tanto Cloudflare Pages como Netlify, y fija tres cosas: el CSP, la política de caché de `/sw.js` y el `no-cache` de los dos documentos HTML.
+
 ## Qué hace
 
 - **Busca** los ~4.300 productos del catálogo (sin acentos, con una mano en el pasillo).

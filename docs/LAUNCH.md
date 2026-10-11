@@ -1,6 +1,8 @@
 # Launch runbook — Carrito
 
-Static PWA, single user, no backend. Most of the standard launch checklist applies
+Static PWA, one deploy, no backend. **Two entries:** the landing page owns `/` and the
+app lives at `/app`, where the service worker is registered and scoped. Measurements
+below were taken for the app unless the row says otherwise. Most of the standard launch checklist applies
 differently here: there is no server to scale, no database to migrate, no auth to
 rate-limit. This document records what was verified, what is genuinely N/A and why,
 and how to roll back.
@@ -11,9 +13,9 @@ and how to roll back.
 
 | Check | Command | Result |
 |---|---|---|
-| Tests | `npm test` | 163 passed, 23 files |
+| Tests | `npm test` | 580 passed, 52 files |
 | Coverage | `npm run test:coverage` | ≥ 90 % floor on `src/lib` + pipeline logic |
-| Build | `npm run build` | clean; JS 73.4 kB gzip |
+| Build | `npm run build` | clean; app 12.96 kB gzip JS, landing 44.29 kB gzip JS |
 | Types | `npm run typecheck` | clean |
 | Lint | `npm run lint` | clean, `--max-warnings 0` |
 | Debug statements | grep `console.log`/`console.debug` in `src/` | none. One `console.error` in `ErrorBoundary` is deliberate error reporting |
@@ -45,7 +47,7 @@ user data and exposes no secrets.
 | JSON parse | **19 ms** for 4,330 products |
 | DOMContentLoaded / load | 45 ms / 45 ms |
 | Second load | served from the service worker precache |
-| Bundle | 73.4 kB gzip JS, 2.2 kB gzip CSS |
+| Bundle | app 12.96 kB gzip JS + 4.63 kB CSS; landing 44.29 kB gzip JS + 1.82 kB CSS (framer-motion is the landing's alone, and never reaches the app) |
 | Images | lazy-loaded, fixed dimensions (no layout shift) |
 
 The 0.73 MB catalogue is the one real cost: paid once on first visit, then precached

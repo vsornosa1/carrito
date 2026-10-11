@@ -21,10 +21,14 @@
       property="og:description"
       content="Lee las etiquetas de los 4.300 productos de Mercadona: aditivos, procesamiento y macros. Y te enseña una alternativa mejor del mismo pasillo. Gratis, sin cuentas y sin anuncios."
     />
-    <!-- The app icon, for now. A purpose-made 1200×630 card would be better; this is
-         better than nothing, which is what the page had. -->
-    <meta property="og:image" content="https://carrito.dev/icons/icon-512.png" />
-    <meta name="twitter:card" content="summary" />
+    <!-- A page built to be shared needs a card, or every share is a bare link.
+         Rendered by a real browser at 1200×630 (see the note in docs/LAUNCH.md):
+         no font rasteriser here, and a browser is one. -->
+    <meta property="og:image" content="https://carrito.dev/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Carrito — sabe qué hay dentro de lo que compras" />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>Carrito — sabe qué hay dentro de lo que compras</title>
   </head>
   <body>

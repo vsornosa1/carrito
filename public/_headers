@@ -20,3 +20,19 @@
 /manifest.webmanifest
   Content-Type: application/manifest+json
   Cache-Control: public, max-age=3600
+
+# HTML must never be cached, and this is the rule that prevents the worst production
+# failure this app can have. The asset filenames it references are content-hashed and
+# change on every deploy, so a document cached from a previous deploy asks for files
+# that no longer exist — a blank page, for a returning visitor, with nothing in the
+# console that points at the cause. The landing page is the exposed one: it has no
+# service worker to fall back on, because being free of one is what keeps the
+# catalogue off it.
+#
+# Both paths are listed explicitly rather than as /*.html: splat semantics differ
+# between hosts, and there are exactly two documents.
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/app/index.html
+  Cache-Control: public, max-age=0, must-revalidate
