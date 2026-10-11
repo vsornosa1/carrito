@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 
 import { App } from './app/App';
 import { ErrorBoundary } from './app/ErrorBoundary';
+import { startAnalytics } from './lib/analytics';
 import './styles.css';
 
 const rootElement = document.getElementById('root');
@@ -36,3 +37,7 @@ createRoot(rootElement).render(
     </ErrorBoundary>
   </StrictMode>,
 );
+
+// A no-op outside a Vercel production build, which is the point: public/_headers allows
+// only its own origin, and /_vercel/insights/script.js is that origin when it exists.
+startAnalytics();

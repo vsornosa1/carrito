@@ -29,6 +29,10 @@ wins, because the monetization question was retired rather than answered.
   reference the author chose: one hero animation plus scroll reveals, with
   `prefers-reduced-motion` respected. **No third-party script anywhere**, so Ko-fi
   is a link in both places, and `public/_headers` is not touched.
+  *Later exception, recorded here rather than rewriting the decision: Vercel Web
+  Analytics. It is same-origin on Vercel, compiled out of every other build, and
+  therefore still loads no third-party origin — but it is measurement, and the landing
+  page's `0 rastreo` claim had to change with it. See the CHANGELOG.*
 - **Out of scope:** Restyling the app. Embedding any part of Ko-fi's widget.
   Loosening the CSP. Rewriting `tasks/archive/**`. The `offer` and `entitlement`
   modules. Anything about a second retailer.

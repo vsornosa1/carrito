@@ -9,6 +9,12 @@ export default defineConfig({
   // /app is a real document. Without this, a server hands /app to the root index.html
   // and the visitor gets the landing page a second time instead of the app.
   appType: 'mpa',
+  define: {
+    // Read by src/lib/analytics.ts. Vercel sets VERCEL=1 in its build environment and
+    // nothing else does, so the same commit built for Cloudflare Pages compiles the
+    // analytics call away instead of 404ing on /_vercel/insights/script.js.
+    __VERCEL__: JSON.stringify(process.env.VERCEL === '1'),
+  },
   plugins: [
     react(),
     VitePWA({

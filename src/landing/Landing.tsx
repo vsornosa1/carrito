@@ -214,7 +214,7 @@ const STEPS = [
 const STATS = [
   { value: '4.300', label: 'productos leídos etiqueta a etiqueta' },
   { value: '26', label: 'secciones agrupadas por zonas' },
-  { value: '0', label: 'cuentas, anuncios y rastreo' },
+  { value: '0', label: 'cuentas, anuncios y cookies' },
 ];
 
 /** The numbers, because they are the argument: this is not a mock-up. */

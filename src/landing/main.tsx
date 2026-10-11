@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { Landing } from './Landing.tsx';
+import { startAnalytics } from '../lib/analytics.ts';
 import { schedulePrefetch } from './prefetch-catalog.ts';
 import './landing.css';
 
@@ -26,6 +27,13 @@ createRoot(rootElement).render(
     <Landing />
   </StrictMode>,
 );
+
+/*
+  Counting visits, and only on Vercel. Not a <script> tag in index.html, because a tag
+  cannot be conditional: this build also ships to Cloudflare Pages, where that route does
+  not exist and the 404 would be a console error on every load. See src/lib/analytics.ts.
+*/
+startAnalytics();
 
 /*
   Warming the catalogue while the reader is still deciding.
