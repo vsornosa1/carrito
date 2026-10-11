@@ -98,7 +98,7 @@ function Hero() {
           variants={{ hidden: { opacity: 0, y: 20 }, shown: { opacity: 1, y: 0 } }}
           transition={{ duration: 0.7, ease: EASE }}
         >
-          Sabe qué hay dentro de lo que compras.
+          Conoce qué lleva la comida que compras.
         </motion.h1>
 
         <motion.p
