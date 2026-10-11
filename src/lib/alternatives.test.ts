@@ -138,10 +138,12 @@ describe('explainAlternatives', () => {
   });
 
   it('reports none-better with the number of peers actually compared', () => {
-    expect(explainAlternatives(path('Bodega', 'Vino tinto', 'Rioja'), richSignals, 27)).toEqual({
-      kind: 'none-better',
-      comparedCount: 27,
-    });
+    // `objectContaining` on purpose: this test owns the *count*. Which of the two
+    // "nothing better" stories this is depends on the tier, and is pinned where the copy
+    // lives — SwapList.test.tsx and ProductScreen.test.tsx.
+    expect(explainAlternatives(path('Bodega', 'Vino tinto', 'Rioja'), richSignals, 27)).toEqual(
+      expect.objectContaining({ kind: 'none-better', comparedCount: 27 }),
+    );
   });
 
   it('prefers non-food over the other cases — a shampoo is not a nutrition question', () => {
@@ -202,10 +204,9 @@ describe('evaluateAlternatives', () => {
       [6, identical],
       [7, identical],
     ]);
-    expect(evaluateAlternatives(best, [best, peerA, peerB], signals)).toEqual({
-      kind: 'none-better',
-      comparedCount: 2,
-    });
+    expect(evaluateAlternatives(best, [best, peerA, peerB], signals)).toEqual(
+      expect.objectContaining({ kind: 'none-better', comparedCount: 2 }),
+    );
   });
 
   it('does not count products from other shelves as compared peers', () => {
@@ -224,9 +225,8 @@ describe('evaluateAlternatives', () => {
       [8, identical],
       [9, identical],
     ]);
-    expect(evaluateAlternatives(target, [target, otherShelf], signals)).toEqual({
-      kind: 'none-better',
-      comparedCount: 0,
-    });
+    expect(evaluateAlternatives(target, [target, otherShelf], signals)).toEqual(
+      expect.objectContaining({ kind: 'none-better', comparedCount: 0 }),
+    );
   });
 });

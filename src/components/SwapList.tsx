@@ -1,4 +1,4 @@
-import type { AlternativesResult } from '../lib/alternatives.ts';
+import type { AlternativesResult, NoneBetterBecause } from '../lib/alternatives.ts';
 import { toBenefit, toCost } from '../lib/benefits.ts';
 import { formatPrice } from '../lib/format.ts';
 import { pluralise } from '../lib/plural.ts';
@@ -37,6 +37,29 @@ function accessibleName(swap: Swap): string {
   return `Ver ${swap.product.name}. Mejor: ${benefits}${cost}`;
 }
 
+/**
+ * "Ninguno es mejor" means two different things, and which one it is matters far more
+ * than the count.
+ *
+ * The panel used to say it in both cases, which meant congratulating someone for buying
+ * the least-bad thing on a shelf where nothing is good. The ranking knows the difference
+ * — it is the product's own tier — and the person reading has to decide what to do about
+ * it, so the copy has to say which one this is.
+ */
+function noneBetterMessage(because: NoneBetterBecause, comparedCount: number): string {
+  const compared = pluralise(comparedCount, 'producto', 'productos');
+
+  if (because === 'already-good') {
+    return `Lo hemos comparado con ${compared} de su categoría y ninguno mejora: ya está entre los mejores.`;
+  }
+
+  if (because === 'all-alike') {
+    return `Lo hemos comparado con ${compared} de su categoría y tampoco hay uno mejor: en esta categoría son todos igual de procesados.`;
+  }
+
+  return `Lo hemos comparado con ${compared} de su categoría y ninguno es mejor.`;
+}
+
 export function SwapList({ result, onSelect }: SwapListProps) {
   // Non-food gets no panel at all: "healthier alternatives" for shampoo is noise.
   if (result.kind === 'non-food') return null;
@@ -61,8 +84,7 @@ export function SwapList({ result, onSelect }: SwapListProps) {
           Alternativas
         </h2>
         <p className="muted" role="status">
-          Lo hemos comparado con {pluralise(result.comparedCount, 'producto', 'productos')} de su
-          categoría y ninguno es mejor.
+          {noneBetterMessage(result.because, result.comparedCount)}
         </p>
       </section>
     );

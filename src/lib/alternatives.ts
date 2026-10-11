@@ -52,10 +52,23 @@ export function hasComparableData(signals: SwapSignals): boolean {
   );
 }
 
+/**
+ * Why nothing beat it.
+ *
+ * "Nothing is better" reads as praise, and it is praise only sometimes. When the whole
+ * subcategory is ultra-processed it means the opposite — there is nothing good to point
+ * at, not that this one is good — and the two cases have to be told apart or the panel
+ * congratulates the user for buying the least-bad thing on the shelf.
+ *
+ * `unclear` is the third answer, for a product whose tier was never established. This app
+ * does not guess, and neither should its copy.
+ */
+export type NoneBetterBecause = 'already-good' | 'all-alike' | 'unclear';
+
 export type AlternativesOutcome =
   | { kind: 'non-food' }
   | { kind: 'no-data' }
-  | { kind: 'none-better'; comparedCount: number };
+  | { kind: 'none-better'; comparedCount: number; because: NoneBetterBecause };
 
 /**
  * Explains an empty alternatives result. "No alternatives" is not one state but
@@ -69,7 +82,7 @@ export function explainAlternatives(
 ): AlternativesOutcome {
   if (!isFoodProduct(categoryPath)) return { kind: 'non-food' };
   if (!hasComparableData(signals)) return { kind: 'no-data' };
-  return { kind: 'none-better', comparedCount };
+  return { kind: 'none-better', comparedCount, because: whyNothingBetter(signals.tier) };
 }
 
 export type AlternativesResult =
@@ -97,5 +110,19 @@ export function evaluateAlternatives(
 
   const swaps = findSwaps(product, catalog, signals, limit);
   if (swaps.length > 0) return { kind: 'available', swaps };
-  return { kind: 'none-better', comparedCount: peers.length };
+  return { kind: 'none-better', comparedCount: peers.length, because: whyNothingBetter(own.tier) };
+}
+
+/**
+ * The tier decides which of the two "nothing better" stories this is.
+ *
+ * Whole and merely-processed products sit near the top of the scale, so nothing beats
+ * them because there is nothing to beat. Ultra-processed ones are the opposite case: the
+ * peers were compared and none of them is better either, which says something about the
+ * shelf rather than about the product.
+ */
+function whyNothingBetter(tier: SwapSignals['tier']): NoneBetterBecause {
+  if (tier === 'whole' || tier === 'processed') return 'already-good';
+  if (tier === 'ultra-processed') return 'all-alike';
+  return 'unclear';
 }

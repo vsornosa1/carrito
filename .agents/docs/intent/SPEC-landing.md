@@ -174,8 +174,17 @@ Ko-fi.
 ## Success criteria
 
 1. `curl -s https://carrito.dev/ | wc -c` is a marketing page, and **an uncached visit
-   to `/` transfers no `catalog/*` request** — verified in the browser's network
-   panel, not inferred.
+ to `/` transfers no `catalog/*` request during load** — verified in the browser's
+ network panel, not inferred.
+
+ *Amended 2026-10-11:* the page now **prefetches** the catalogue after load, on an idle
+ callback and only when the connection allows it, so the app opens warm instead of
+ cold. The original criterion forbade the request entirely; see
+ `src/landing/prefetch-catalog.ts` for the guards and the reasoning. What still holds is
+ the part that mattered: the request never competes with the page's own load, and the
+ catalogue is never *bundled* into this page — the guard against importing it is
+ unchanged, because bundling it would make the page heavy to read rather than merely
+ heavy to leave.
 2. `/app` is the app, installable, and its installed icon opens the app rather than
    the landing page.
 3. The hero shows the list reordering into trip order, and renders the final order

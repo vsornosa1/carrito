@@ -113,14 +113,38 @@ describe('SwapList — disclosed cost', () => {
     expect(screen.getByText(/no hay datos suficientes/i)).toBeInTheDocument();
   });
 
-  it('gives positive feedback when nothing beats it, naming how many were compared', () => {
-    render(<SwapList result={{ kind: 'none-better', comparedCount: 27 }} onSelect={vi.fn()} />);
+  it('names how many were compared when the tier is unknown, claiming nothing either way', () => {
+    render(
+      <SwapList result={{ kind: 'none-better', comparedCount: 27, because: 'unclear' }} onSelect={vi.fn()} />,
+    );
     expect(screen.getByText(/27 productos de su categoría/i)).toBeInTheDocument();
     expect(screen.getByText(/ninguno es mejor/i)).toBeInTheDocument();
   });
 
+  it('praises a product that is already whole, rather than warning about its shelf', () => {
+    render(
+      <SwapList
+        result={{ kind: 'none-better', comparedCount: 27, because: 'already-good' }}
+        onSelect={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/ya está entre los mejores/i)).toBeInTheDocument();
+  });
+
+  it('says the shelf is the problem when nothing beats an ultra-processed product', () => {
+    render(
+      <SwapList
+        result={{ kind: 'none-better', comparedCount: 27, because: 'all-alike' }}
+        onSelect={vi.fn()}
+      />,
+    );
+    expect(screen.getByText(/todos igual de procesados/i)).toBeInTheDocument();
+    // The old copy read as praise for the least-bad thing on the shelf.
+    expect(screen.queryByText(/ninguno es mejor/i)).toBeNull();
+  });
+
   it('states the single-peer case in the singular, not "1 productos"', () => {
-    render(<SwapList result={{ kind: 'none-better', comparedCount: 1 }} onSelect={vi.fn()} />);
+    render(<SwapList result={{ kind: 'none-better', comparedCount: 1, because: 'unclear' }} onSelect={vi.fn()} />);
     expect(screen.getByText(/1 producto de su categoría/i)).toBeInTheDocument();
   });
 });

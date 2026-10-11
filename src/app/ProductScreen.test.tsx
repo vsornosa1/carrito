@@ -197,14 +197,32 @@ describe('ProductScreen', () => {
     expect(onSelectSwap).toHaveBeenCalledWith(expect.objectContaining({ product: better }));
   });
 
-  it('explains positively when nothing beats the product', () => {
+  /*
+    The old assertion here read "explains positively", and the copy said "ninguno es
+    mejor" — praise. Both were wrong for this fixture: `richSignals` is ultra-processed and
+    so is its only peer, so the shelf is the problem, not the product. The two cases read
+    identically before, which is what this now pins apart.
+  */
+  it('blames the shelf, not the product, when nothing beats an ultra-processed one', () => {
     const peer: EnrichedCatalogProduct = { ...base, id: 3, name: 'Aceite igual' };
     const signals = new Map<number, SwapSignals>([
       [1, richSignals],
       [3, richSignals],
     ]);
     renderScreen({ catalog: [base, peer], signals });
-    expect(screen.getByText(/1 producto de su categoría y ninguno es mejor/)).toBeInTheDocument();
+    expect(screen.getByText(/1 producto de su categoría/)).toBeInTheDocument();
+    expect(screen.getByText(/todos igual de procesados/)).toBeInTheDocument();
+  });
+
+  it('praises a product that is already whole when nothing beats it', () => {
+    const whole: SwapSignals = { ...richSignals, tier: 'whole' };
+    const peer: EnrichedCatalogProduct = { ...base, id: 3, name: 'Aceite igual' };
+    const signals = new Map<number, SwapSignals>([
+      [1, whole],
+      [3, whole],
+    ]);
+    renderScreen({ catalog: [base, peer], signals });
+    expect(screen.getByText(/ya está entre los mejores/)).toBeInTheDocument();
   });
 });
 
