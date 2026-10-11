@@ -245,6 +245,15 @@ Added 2026-10-11. Intent: [INTENT-monetization.md](./INTENT-monetization.md).
 then commercial, then mechanical — and decide whether a second retailer is a
 second codebase or a data package.
 
+> **Pivot, 2026-10-11.** Carrito went **free**, supported by a Ko-fi link instead of
+> a paywall. `offer` and `entitlement` are dropped as modules, so the build order
+> below now starts at `licensing` (delivered) and then goes to `branding`,
+> `retailer-abstraction` and `launch-comms`. Nothing about the *law* changed: the
+> expiry of the sell question is not the expiry of the redistribution question,
+> because the app ships the catalogue to every visitor either way. The rename did
+> move one row — see the `trademark` basis in the inventory.
+> Intent: [INTENT-carrito.md](./INTENT-carrito.md).
+
 **Ordering note:** this map was drawn *after* `licensing` was already specified and
 planned, which inverts the usual map-then-spec order. `licensing` is folded in as
 the head of the build order rather than retro-fitted, because its scope is exactly

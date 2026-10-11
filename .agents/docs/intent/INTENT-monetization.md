@@ -1,6 +1,9 @@
 # Intent: monetization envelope
 
-Status: **confirmed** · 2026-10-11 · not yet on a branch
+Status: **superseded** · 2026-10-11 — see [INTENT-carrito.md](./INTENT-carrito.md).
+The monetization question was retired rather than answered: Ko-fi replaced the
+paywall, so `offer` and `entitlement` were dropped and the licence findings that
+this intent produced now live on in [ENVELOPE.md](../../../docs/licensing/ENVELOPE.md).
 
 This is the intent behind `SPEC-monetization.md`. It records *why* the question
 was asked, not the legal answer — the answer is the spec's job. Nothing here is
@@ -8,7 +11,7 @@ legal advice; it is a statement of what I want to find out and why.
 
 ## Statement of intent
 
-- **Outcome:** A map of the legal envelope for monetizing mercadonapp — which
+- **Outcome:** A map of the legal envelope for monetizing carrito — which
   layers are chargeable, which are not, and what obligations follow the
   chargeable ones — so a premium feature can be chosen to sit *inside* the
   lines rather than discovered against a wall after it is built.

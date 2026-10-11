@@ -1,5 +1,13 @@
 # Spec: `offer`
 
+> **Superseded 2026-10-11.** Carrito went free with a Ko-fi link, so there is no
+> offer to price and no gate to build: this spec and `SPEC-entitlement.md` were both
+> dropped. Kept rather than deleted because the *reasoning* still holds — the
+> envelope finding that a paywall belongs on authored computation rather than on
+> withheld data remains true, and would be the starting point if a gate ever comes
+> back. The decision that retired it is in
+> [INTENT-carrito.md](./INTENT-carrito.md).
+
 Module id: `offer` · Depends on: `licensing` · Second in the monetization build order
 
 Envelope: [ENVELOPE.md](../../docs/licensing/ENVELOPE.md) ·

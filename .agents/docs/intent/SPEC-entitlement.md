@@ -1,5 +1,12 @@
 # Spec: `entitlement`
 
+> **Superseded 2026-10-11.** There is nothing to unlock: Carrito is free and Ko-fi
+> is a link. Dropped with [SPEC-offer.md](./SPEC-offer.md). The one durable finding
+> is worth keeping, because it constrains anything future: the current CSP
+> (`script-src 'self'`, `connect-src 'self'`, `form-action 'none'`, `payment=()`)
+> blocks every *embedded* payment integration while leaving top-level navigation
+> alone, so linking out is the only route that needs no CSP change.
+
 Module id: `entitlement` · Depends on: `offer` · Fourth in the monetization build order
 
 Map: [CAPABILITY-MAP.md](./CAPABILITY-MAP.md) ·
