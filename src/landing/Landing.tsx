@@ -124,6 +124,17 @@ function Hero() {
           >
             Abrir la app
           </motion.a>
+          <motion.a
+            className="btn btn--ghost"
+            href={KOFI_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Invítame a un café (se abre en una pestaña nueva)"
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Invítame a un café
+          </motion.a>
         </motion.div>
 
         <motion.p

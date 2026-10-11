@@ -82,7 +82,13 @@ a {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.9rem var(--gutter);
+  /* A plain value first, then the enhancement. `color-mix` needs iOS 16.2 or Chrome
+     111, and an unsupported declaration is not a graceful degradation here: it leaves
+     a *sticky* bar with no background at all, so on the phones most people are holding
+     the page scrolls under the wordmark. */
+  background: rgba(247, 245, 241, 0.92);
   background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
 }
@@ -95,7 +101,10 @@ a {
 }
 
 .bar__cta {
-  min-height: 2.5rem;
+  /* 44px, the same floor the app keeps for aisle-critical controls. This is the only
+     way to the app from the top of the page, and a thumb in a supermarket is not
+     precise. */
+  min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
   padding: 0 1rem;
@@ -105,6 +114,13 @@ a {
   font-weight: 700;
   text-decoration: none;
   transition: background-color 180ms ease, color 180ms ease;
+}
+
+/* Landscape on a notched phone puts the content under the sensor housing otherwise.
+   Applied to the wrapper so every inner gutter shifts with it. */
+.landing {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* ---- Layout ---- */

@@ -1,15 +1,20 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { Landing } from './Landing.tsx';
 
 describe('the landing page', () => {
-  it('has exactly one h1, and it makes the claim the page exists for', () => {
+  /*
+    Deliberately does not pin the sentence. The headline is the owner's copy and gets
+    rewritten — a test that goes red on a copy edit teaches everyone to ignore red. It
+    asserts the *structure* the page needs: one h1, and one that says something.
+  */
+  it('has exactly one h1, and it says something', () => {
     render(<Landing />);
 
     const headings = screen.getAllByRole('heading', { level: 1 });
     expect(headings).toHaveLength(1);
-    expect(headings[0]).toHaveTextContent(/qué hay dentro/i);
+    expect((headings[0]!.textContent ?? '').trim().length).toBeGreaterThan(10);
   });
 
   it('offers the two exits, and the Ko-fi one leaves the tab', () => {
@@ -24,6 +29,24 @@ describe('the landing page', () => {
     expect(kofi).toHaveAttribute('href', 'https://ko-fi.com/sornosa');
     expect(kofi).toHaveAttribute('target', '_blank');
     expect(kofi).toHaveAttribute('rel', expect.stringContaining('noopener'));
+  });
+
+  /*
+    Scoped to the hero on purpose. The first version of this test asked the whole page
+    for a Ko-fi link and took the first match — which was the support section's, so the
+    suite stayed green when the hero's own button went missing during a rewrite. A test
+    that passes while a call to action disappears is worse than no test.
+  */
+  it('offers both exits in the hero, where a phone sees them first', () => {
+    render(<Landing />);
+
+    const actions = document.querySelector('.hero__actions');
+    expect(actions, 'the hero must have an actions row').not.toBeNull();
+
+    const links = within(actions as HTMLElement).getAllByRole('link');
+    expect(links).toHaveLength(2);
+    expect(links[0]).toHaveAttribute('href', '/app/');
+    expect(links[1]).toHaveAttribute('href', 'https://ko-fi.com/sornosa');
   });
 
   it('says which catalogue it actually has, since there is only one', () => {
