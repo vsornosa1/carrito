@@ -1020,6 +1020,40 @@ img {
   height: 0.875rem;
 }
 
+/* ---- Sorting a shelf ---- */
+.sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-3);
+}
+
+.sort__option {
+  /* 44px, the floor the rest of the app keeps: this is a one-handed control. */
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sort__option[aria-pressed='true'] {
+  border-color: var(--color-primary-strong);
+  background: var(--color-primary-tint);
+  color: var(--color-primary-strong);
+}
+
+@media (hover: hover) {
+  .sort__option:hover {
+    border-color: var(--color-primary);
+  }
+}
+
 /* ---- Product page ----
    The detail screen is a product page, not a document: imagery leads, the
    price is a headline, and the primary action stays reachable. */

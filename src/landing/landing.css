@@ -499,6 +499,90 @@ a {
   color: var(--ink-muted);
 }
 
+/* ---- Roadmap, with the ask beside it ---- */
+.roadmap {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  padding: clamp(2.5rem, 6vw, 4rem) 0 clamp(2.5rem, 6vw, 4rem);
+  border-top: 1px solid var(--line);
+}
+
+@media (min-width: 58rem) {
+  .roadmap {
+    grid-template-columns: 1.35fr 1fr;
+    align-items: start;
+  }
+}
+
+.roadmap__lead {
+  max-width: var(--measure);
+  margin: 1rem 0 0;
+  color: var(--ink-muted);
+}
+
+.roadmap__columns {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 40rem) {
+  .roadmap__columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.roadmap__head {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.roadmap__list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roadmap__list li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 0.9375rem;
+  color: var(--ink-muted);
+}
+
+/* A tick for what works, an arrow for what is coming: the difference between the two
+   columns is the whole point of showing them together. */
+.roadmap__list li::before {
+  content: '\2713';
+  position: absolute;
+  left: 0;
+  color: var(--good);
+  font-weight: 800;
+}
+
+.roadmap__list--next li::before {
+  content: '\2192';
+  color: var(--accent-deep);
+}
+
+.roadmap__support {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--paper-card);
+  box-shadow: var(--shadow-card);
+}
+
 .foot {
   display: grid;
   gap: 0.4rem;

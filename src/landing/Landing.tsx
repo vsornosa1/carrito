@@ -199,7 +199,7 @@ function Hero() {
 const STEPS = [
   {
     title: 'Búscalo con una mano',
-    body: 'Escrito como te salga: sin tildes, con prisa, con el carro en la otra mano. 4.300 productos que aparecen igual de rápido en el pasillo, con o sin cobertura.',
+    body: 'Escrito como quieras: sin tildes, con prisa, con el carro en la otra mano. 4.300 productos que aparecen igual de rápido en el pasillo, con o sin cobertura.',
   },
   {
     title: 'Mira qué lleva de verdad',
@@ -279,8 +279,8 @@ function Ordering() {
         </h2>
         <p className="order__body">
           Cada tienda coloca las cosas a su manera, así que una ruta perfecta no existe y
-          Carrito no la promete. Te propone un orden sensato —frescos primero, congelados al
-          final— y lo corriges con un toque: mueves una zona, mueves un producto dentro de su
+          Carrito no la promete. Te propone un orden sensato, frescos primero + congelados al
+          final, y lo corriges con un toque: mueves una zona, mueves un producto dentro de su
           zona, o lo pones todo de la A a la Z para comprobar algo.
         </p>
         <p className="order__body">
@@ -291,16 +291,66 @@ function Ordering() {
   );
 }
 
-function Support() {
+/*
+  What is done and what is coming, on the page rather than in a drawer.
+
+  Publishing the gap is the honest version of a roadmap and the useful one: it says the
+  project is alive, which is the only real argument for supporting it. No dates, because
+  a personal project that misses a date has lied on its own landing page.
+*/
+const ROADMAP = {
+  now: [
+    'Ordenar un pasillo por precio o de la A a la Z',
+    'Leer el procesamiento y los aditivos de los 4.300 productos',
+    'Una alternativa mejor cuando la hay, con el motivo en números',
+    'Tu propio orden del carrito, corregible con un toque',
+  ],
+  next: [
+    'Recetas con lo que ya tienes en el carrito',
+    'Compartir el mismo carrito con la familia',
+    'Un enlace para compartir un producto concreto',
+  ],
+};
+
+function Roadmap() {
   return (
-    <section className="support-landing" aria-labelledby="support-title">
-      <Reveal className="support-landing__panel">
-        <h2 id="support-title" className="section-title">
-          Gratis, y va a seguir siéndolo.
+    <section className="roadmap" aria-labelledby="roadmap-title">
+      <Reveal className="roadmap__lists">
+        <p className="kicker">En qué ando</p>
+        <h2 id="roadmap-title" className="section-title">
+          Esto no está terminado, y se nota.
         </h2>
+        <p className="roadmap__lead">
+          Enseño lo que falta en vez de esperar a que esté perfecto. Lo primero ya funciona
+          hoy; lo segundo es lo siguiente, sin prometer fechas.
+        </p>
+
+        <div className="roadmap__columns">
+          <div>
+            <h3 className="roadmap__head">Ya funciona</h3>
+            <ul className="roadmap__list" role="list">
+              {ROADMAP.now.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="roadmap__head">Lo siguiente</h3>
+            <ul className="roadmap__list roadmap__list--next" role="list">
+              {ROADMAP.next.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </Reveal>
+
+      <Reveal className="roadmap__support">
+        <h3 className="roadmap__head">Apoyar el proyecto</h3>
         <p className="support-landing__body">
           Sin anuncios, sin cuentas y sin vender nada de lo que haces con la app. Si te ahorra
-          tiempo en la compra, puedes invitarme a un café.
+          tiempo en la compra, puedes invitarme a un café — es lo que paga el siguiente
+          despliegue.
         </p>
         <motion.a
           className="btn btn--primary"
@@ -343,7 +393,7 @@ export function Landing() {
           <Stats />
           <HowItWorks />
           <Ordering />
-          <Support />
+          <Roadmap />
         </main>
         <Foot />
       </div>

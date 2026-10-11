@@ -106,6 +106,32 @@ export function sortByName<T extends CatalogProduct>(products: readonly T[]): T[
   return [...products].sort((a, b) => a.name.localeCompare(b.name, 'es'));
 }
 
+/**
+ * Cheapest first, by what the pack costs.
+ *
+ * `unitPrice` rather than price per kilo. Per-kilo is the fairer comparison across pack
+ * sizes, and it is null on a large part of the catalogue — a sort that quietly ignores
+ * half the list is worse than one that is merely simple about it.
+ *
+ * Ties keep catalogue order, because `sort` is stable and the shop's own order within a
+ * shelf is not noise.
+ */
+export function sortByPrice<T extends CatalogProduct>(products: readonly T[]): T[] {
+  return [...products].sort((a, b) => a.unitPrice - b.unitPrice);
+}
+
+/** How a shelf's products are listed. `shop` is the order Mercadona puts them in. */
+export type ProductSort = 'shop' | 'az' | 'price';
+
+export function sortProducts<T extends CatalogProduct>(
+  products: readonly T[],
+  sort: ProductSort,
+): T[] {
+  if (sort === 'az') return sortByName(products);
+  if (sort === 'price') return sortByPrice(products);
+  return [...products];
+}
+
 export type MoveDirection = 'up' | 'down';
 
 /**
