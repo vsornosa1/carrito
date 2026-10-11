@@ -13,6 +13,14 @@
   Motion lives in Landing.tsx, through framer-motion, because the reorder needs layout
   animation rather than anything CSS can express. What is here is the resting state.
 */
+/*
+  Self-hosted through npm rather than hotlinked. Google Fonts' CDN would make this page
+  contact a third party on load, which is the one thing it promises not to do — and the
+  Fontsource packages are OFL, so the licence travels with the repository.
+*/
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/instrument-sans';
+
 :root {
   --paper: #f7f5f1;
   --paper-card: #fffdf9;
@@ -21,12 +29,21 @@
   --line: #e3ded4;
   --accent: #e04a2f;
   --accent-deep: #b8341c;
+  --accent-tint: #fdeee9;
   --good: #007a3a;
+  --good-tint: #e9f4ed;
+
+  /* Bricolage carries the voice: a display grotesque with enough irregularity to look
+     designed rather than defaulted. Instrument Sans does the reading, where personality
+     would get in the way. */
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
   --radius: 14px;
-  --display: clamp(2.5rem, 8.5vw, 4.5rem);
+  --display: clamp(2.75rem, 9vw, 5.25rem);
   --measure: 33rem;
   --gutter: clamp(1.25rem, 5vw, 3rem);
+  --shadow-card: 0 2px 4px rgba(20, 22, 26, 0.04), 0 18px 40px -24px rgba(20, 22, 26, 0.35);
 }
 
 *,
@@ -43,12 +60,19 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+}
+
+/* The display face, wherever the page is being loud. */
+.hero__title,
+.section-title,
+.bar__mark,
+.stat__value {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 95;
 }
 
 a {
@@ -456,6 +480,115 @@ a:focus-visible,
   `<MotionConfig reducedMotion="user">` in Landing.tsx, which is the only place that can
   reach them; this block covers what CSS owns.
 */
+/* ---- Brand ---- */
+.bar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  color: var(--ink);
+}
+
+.bar__mark {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+/* The mark sits on a field of colour, so the bar has an anchor instead of being grey
+   type on grey paper. */
+.bar__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 12px;
+  background: var(--good);
+  color: #ffffff;
+}
+
+/* ---- Depth behind the hero ---- */
+/* Two soft washes. They are what stops a paper background reading as "unstyled":
+   depth around the content rather than a gradient across it. */
+.hero {
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: -12% -25% 28% -25%;
+  z-index: -1;
+  background:
+    radial-gradient(36rem 24rem at 16% 10%, var(--accent-tint), transparent 70%),
+    radial-gradient(30rem 22rem at 88% 32%, var(--good-tint), transparent 72%);
+  pointer-events: none;
+}
+
+/* ---- Numbers ---- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 1.75rem 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.stat {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.stat__value {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.stat__label {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+/* ---- The demo, with some weight to it ---- */
+/* It used to be grey cards on a grey panel, which is much of why the page read as
+   unfinished. The tone now follows the beat: a warm edge while it points at something
+   bad, a green one once it offers the better option. */
+.demo {
+  border-color: color-mix(in srgb, var(--line) 55%, var(--ink));
+  box-shadow: var(--shadow-card);
+}
+
+.demo__card {
+  border-left: 3px solid var(--accent);
+  background: var(--paper-card);
+}
+
+.demo--swap .demo__card,
+.demo--order .demo__card {
+  border-left-color: var(--good);
+}
+
+.demo__row {
+  background: var(--paper-card);
+  box-shadow: 0 1px 2px rgba(20, 22, 26, 0.04);
+}
+
+.demo__zone {
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  opacity: 0.55;
+}
+
+.demo__caption {
+  font-size: 0.9375rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

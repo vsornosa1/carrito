@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion';
 
+import { CarritoMark } from '../components/CarritoMark.tsx';
 import {
   HERO_BEATS,
   HERO_BEAT_MS,
@@ -47,7 +48,12 @@ function Bar() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: EASE }}
     >
-      <p className="bar__mark">Carrito</p>
+      <p className="bar__brand">
+        <span className="bar__logo">
+          <CarritoMark size={22} />
+        </span>
+        <span className="bar__mark">Carrito</span>
+      </p>
       <motion.a className="bar__cta" href={APP_URL} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
         Abrir la app
       </motion.a>
@@ -144,7 +150,7 @@ function Hero() {
 
         {/* Decorative: every claim it acts out is stated in the copy beside it. And the
             numbers are gone — the app refuses to invent one, and so does its poster. */}
-        <div className="demo" aria-hidden="true">
+        <div className={`demo demo--${phase.id}`} aria-hidden="true">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={phase.id}
@@ -193,20 +199,47 @@ function Hero() {
   );
 }
 
+/*
+  Three steps that narrate value rather than features. The old first line was "Da igual si
+  escribes platano, sin tilde: te encuentra el Plátano de Canarias" — true, and it read
+  like a test fixture. Nobody in an aisle is impressed that search works.
+*/
 const STEPS = [
   {
-    title: 'Busca lo que ibas a comprar',
-    body: '4.300 productos. Da igual si escribes platano, sin tilde: te encuentra el Plátano de Canarias. Y funciona con una mano y sin cobertura.',
+    title: 'Búscalo con una mano',
+    body: 'Escrito como te salga: sin tildes, con prisa, con el carro en la otra mano. 4.300 productos que aparecen igual de rápido en el pasillo, con o sin cobertura.',
   },
   {
     title: 'Mira qué lleva de verdad',
-    body: 'Aditivos, procesamiento y macros, con el texto de los ingredientes detrás de cada afirmación. Donde no hay datos lo dice: no se inventa un número.',
+    body: 'Cuánto de procesado está, los aditivos uno a uno y los macros por 100 g. Y detrás de cada afirmación, el texto de la etiqueta que la sostiene.',
   },
   {
-    title: 'Añádelo a la lista',
-    body: 'La lista se queda en tu móvil, sin cuentas ni registro. Vas tachando por la tienda y el total se actualiza mientras compras.',
+    title: 'Decide con la etiqueta delante',
+    body: 'Cuando hay algo mejor en el mismo pasillo te lo enseña, con el motivo en números. Cuando no hay datos lo dice: aquí no se inventa nada.',
   },
 ];
+
+const STATS = [
+  { value: '4.300', label: 'productos leídos etiqueta a etiqueta' },
+  { value: '26', label: 'secciones agrupadas por zonas' },
+  { value: '0', label: 'cuentas, anuncios y rastreo' },
+];
+
+/** The numbers, because they are the argument: this is not a mock-up. */
+function Stats() {
+  return (
+    <Reveal>
+      <ul className="stats" role="list">
+        {STATS.map((stat) => (
+          <li key={stat.label} className="stat">
+            <span className="stat__value">{stat.value}</span>
+            <span className="stat__label">{stat.label}</span>
+          </li>
+        ))}
+      </ul>
+    </Reveal>
+  );
+}
 
 function HowItWorks() {
   return (
@@ -315,6 +348,7 @@ export function Landing() {
         <Bar />
         <main id="contenido" className="landing__main">
           <Hero />
+          <Stats />
           <HowItWorks />
           <Ordering />
           <Support />
