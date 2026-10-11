@@ -13,6 +13,7 @@
   "assets": {
     // Vite's output. The catalogue and both documents are already inside it.
     "directory": "./dist",
+    "pages_build_output_dir": "./dist",
 
     // `auto-trailing-slash` is what makes /app resolve to /app/index.html. This site is
     // two real documents rather than one app with a router, so the default matters more
