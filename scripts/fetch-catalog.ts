@@ -26,7 +26,7 @@ async function fetchResponse(url: string, attempt = 0): Promise<Response> {
   let response: Response;
   try {
     response = await fetch(url, {
-      headers: { 'user-agent': 'mercadonapp-catalog-sync/0.1 (single-user app; polite mirror download)' },
+      headers: { 'user-agent': 'carrito-catalog-sync/0.1 (single-user app; polite mirror download)' },
     });
   } catch (error) {
     if (attempt >= MAX_RETRIES) throw error;

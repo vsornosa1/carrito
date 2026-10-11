@@ -1,4 +1,4 @@
-# Launch runbook — Mercadonapp
+# Launch runbook — Carrito
 
 Static PWA, single user, no backend. Most of the standard launch checklist applies
 differently here: there is no server to scale, no database to migrate, no auth to
@@ -99,7 +99,7 @@ data migration and no server state to unwind. `git revert` and redeploy.
 
 **Time to roll back:** < 5 minutes (redeploy a static bundle). No database step exists.
 
-**Client state:** the cart lives in `localStorage` under `mercadonapp.cart.v1`. A revert
+**Client state:** the cart lives in `localStorage` under `carrito.cart.v1`. A revert
 does not touch it; the versioned key means a schema change cannot corrupt an existing cart.
 
 ## Monitoring — the honest position

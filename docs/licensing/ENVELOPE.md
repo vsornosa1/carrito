@@ -249,6 +249,6 @@ Ordered by how much it would move the answer:
   [CAPABILITY-MAP.md](../../.agents/docs/intent/CAPABILITY-MAP.md).
 - It does not state whether any term is enforceable, and no section should be read as
   doing so.
-- It does not cover a second retailer: the envelope is mercadonapp-only, and
+- It does not cover a second retailer: the envelope is carrito-only, and
   `aldi-data` needs its own row set, because the source, its licence and the trademark
   all change.

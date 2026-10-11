@@ -27,7 +27,7 @@ premium feature I can say *safe / not safe / safe-if-X* and point at the clause.
 as something to take to someone qualified. No section may read as an opinion on
 enforceability.
 
-**Scope boundary — mercadonapp only.** Added 2026-10-11 when the monetization
+**Scope boundary — carrito only.** Added 2026-10-11 when the monetization
 capability map was approved ([CAPABILITY-MAP.md](./CAPABILITY-MAP.md)). A second
 retailer (`aldi-data`) needs its **own** row set: the source, its licence and the
 trademark all change, and a verdict borrowed from this envelope would be wrong.

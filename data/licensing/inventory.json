@@ -78,8 +78,8 @@
     "requires": [],
     "covers": [],
     "fields": [],
-    "basis": "The retailer's name appears in the product name (README.md, package.json \"mercadonapp\"), the page title, the icon and in-app copy. This is a right of its own and is not addressed by any data licence.",
-    "note": "Unknown. Nominative use to describe compatibility is recognised in some jurisdictions and not others, and no data licence helps here - Open Food Facts' own terms say explicitly that their licences cover only the rights of Open Food Facts and its contributors, and that third-party trademark rights may still apply. Resolved by a trademark position for ES/EU on using a retailer mark in a paid product's name and icon. Consumed by the `branding` module, which is why it is recorded even though it is not a licence."
+    "basis": "The retailer's name is no longer in the product name, package name, page title or manifest - the 2026-10-11 rename moved all of those to Carrito. It remains in the app's copy, which states which shop the app is for, and the imagery is still served from the retailer's CDN. A right of its own, not addressed by any data licence.",
+    "note": "Still unknown, and the rename changed its shape without settling it. The most exposed use is gone: the mark is out of the product's identity, so nothing claims to be called by the retailer's name any more. What remains is descriptive use in copy plus the imagery, and going free with a donation link weakens the commercial character compared with a paywall - donations are not consideration for a licence. Neither change is a grant, so the row is not upgraded on the strength of a rename. Resolved by a trademark position for ES/EU on descriptive use of a retailer mark; consumed by the branding module. Updated rather than left stale, because a basis describing a name that no longer exists would misdescribe what is actually left."
   },
   {
     "id": "enriched-db",

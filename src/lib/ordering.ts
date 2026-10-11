@@ -18,7 +18,14 @@ export interface OrderPreference {
   withinZone: Partial<Record<ZoneId, number[]>>;
 }
 
-export const ORDER_STORAGE_KEY = 'mercadonapp.order.v1';
+export const ORDER_STORAGE_KEY = 'carrito.order.v1';
+
+/**
+ * The key this app wrote before it was renamed from mercadonapp — read-only, and
+ * only as a fallback, for the same reason as the cart's: an arrangement someone
+ * made is theirs, and a rename must not discard it. See `LEGACY_CART_STORAGE_KEY`.
+ */
+export const LEGACY_ORDER_STORAGE_KEY = 'mercadonapp.order.v1';
 
 const MODES: readonly OrderMode[] = ['trip', 'custom', 'az'];
 
@@ -173,7 +180,7 @@ export interface StorageLike {
  */
 export function loadOrder(storage: StorageLike): OrderPreference {
   try {
-    const raw = storage.getItem(ORDER_STORAGE_KEY);
+    const raw = storage.getItem(ORDER_STORAGE_KEY) ?? storage.getItem(LEGACY_ORDER_STORAGE_KEY);
     if (!raw) return defaultOrder();
     const parsed = JSON.parse(raw) as Partial<OrderPreference>;
 

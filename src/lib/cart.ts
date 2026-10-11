@@ -1,7 +1,16 @@
 import type { CatalogProduct } from '../types/catalog.ts';
 import type { Cart, CartItem } from '../types/cart.ts';
 
-export const CART_STORAGE_KEY = 'mercadonapp.cart.v1';
+export const CART_STORAGE_KEY = 'carrito.cart.v1';
+
+/**
+ * The key this app wrote before it was renamed from mercadonapp.
+ *
+ * Read-only, and only ever a fallback: a cart saved under the old key has to
+ * survive the rename rather than quietly vanish. Nothing writes it any more, so it
+ * ages out by itself as people use the app.
+ */
+export const LEGACY_CART_STORAGE_KEY = 'mercadonapp.cart.v1';
 
 export function createCart(now: Date = new Date()): Cart {
   return { items: [], updatedAt: now.toISOString() };
@@ -128,7 +137,7 @@ function readQuantity(value: unknown): number {
 /** Loads the cart, degrading to an empty cart on any malformed stored value. */
 export function loadCart(storage: StorageLike, now: Date = new Date()): Cart {
   try {
-    const raw = storage.getItem(CART_STORAGE_KEY);
+    const raw = storage.getItem(CART_STORAGE_KEY) ?? storage.getItem(LEGACY_CART_STORAGE_KEY);
     if (!raw) return createCart(now);
     const parsed = JSON.parse(raw) as Cart;
     if (!Array.isArray(parsed.items)) return createCart(now);

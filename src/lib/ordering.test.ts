@@ -307,4 +307,24 @@ describe('persistence', () => {
       3, 1, 2,
     ]);
   });
+
+  // The key the app wrote before the rename, hard-coded on purpose — see the note
+  // in cart.test.ts. It stands for an arrangement already stored on a device.
+  const KEY_BEFORE_RENAME = 'mercadonapp.order.v1';
+
+  it('reads an arrangement saved before the rename, so nobody loses their order', () => {
+    const arranged: OrderPreference = {
+      mode: 'custom',
+      zoneOrder: ['bebidas', 'frescos'],
+      withinZone: { bebidas: [2, 1] },
+    };
+    const map = new Map<string, string>([[KEY_BEFORE_RENAME, JSON.stringify(arranged)]]);
+
+    expect(
+      loadOrder({
+        getItem: (key: string) => map.get(key) ?? null,
+        setItem: (key: string, value: string) => void map.set(key, value),
+      }),
+    ).toEqual(arranged);
+  });
 });

@@ -46,7 +46,7 @@ describe('AppHeader', () => {
   it('names the app without taking the page heading', () => {
     stubViewport('phone');
     renderHeader();
-    expect(screen.getByText('Mercadonapp')).toBeInTheDocument();
+    expect(screen.getByText('Carrito')).toBeInTheDocument();
     expect(screen.queryByRole('heading')).toBeNull();
   });
 

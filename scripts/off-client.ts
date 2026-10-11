@@ -1,4 +1,4 @@
-const DEFAULT_USER_AGENT = 'mercadonapp/0.1 (single-user nutrition assistant; build-time enrichment)';
+const DEFAULT_USER_AGENT = 'carrito/0.1 (single-user nutrition assistant; build-time enrichment)';
 const MAX_RETRIES = 4;
 
 export type FetchFn = (input: string, init?: RequestInit) => Promise<Response>;

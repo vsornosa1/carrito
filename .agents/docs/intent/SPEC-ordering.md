@@ -44,7 +44,7 @@ export function resetOrder(): OrderPreference;              // back to the propo
 export function nextMode(pref: OrderPreference, mode: OrderMode): OrderPreference;
 ```
 
-- Persisted in `localStorage` under **`mercadonapp.order.v1`**, versioned like the cart's key.
+- Persisted in `localStorage` under **`carrito.order.v1`**, versioned like the cart's key.
 - **A corrupt or partially-valid stored value degrades to the proposed order**, exactly as `loadCart` degrades to an empty cart. Never a crash, never a silent scramble.
 - Product ids that no longer exist are ignored rather than removed from storage, so a catalogue refresh does not destroy a user's arrangement.
 
@@ -103,7 +103,7 @@ Drag may be added on top. It is never the only way.
 5. The chip's accessible name states the current mode, and changes when the mode changes.
 6. Reset restores the proposed order and clears both layers.
 7. **Every reorder is reachable by keyboard alone** — a test performs the move with `userEvent` keyboard interaction, no pointer events.
-8. A corrupt `mercadonapp.order.v1` value degrades to the proposal without throwing (mirrors the cart's corrupt-value test).
+8. A corrupt `carrito.order.v1` value degrades to the proposal without throwing (mirrors the cart's corrupt-value test).
 9. Stored ids absent from the catalogue are ignored, and the arrangement survives.
 10. The same order applies to **both the cart and the category browser** — one vocabulary, two screens.
 11. Pure functions; no React, no network, no storage inside `src/lib`.

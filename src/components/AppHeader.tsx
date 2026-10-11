@@ -47,7 +47,7 @@ export function AppHeader({
   return (
     <header className="app-header">
       {/* A brand mark, not a heading: each view owns the one h1 on the page. */}
-      <p className="app-header__title">Mercadonapp</p>
+      <p className="app-header__title">Carrito</p>
 
       {listButton ? (
         <button

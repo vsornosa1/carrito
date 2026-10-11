@@ -197,4 +197,41 @@ describe('cart persistence', () => {
     };
     expect(loadCart(storageWith(JSON.stringify(bad)), t0)).toEqual(createCart(t0));
   });
+
+  // The key the app wrote before the rename, hard-coded on purpose. It stands for
+  // data already sitting on people's devices, so it must not be refactored into a
+  // shared constant: a constant could drift from what was actually stored while
+  // these tests kept passing.
+  const KEY_BEFORE_RENAME = 'mercadonapp.cart.v1';
+
+  function storageWithKeys(entries: readonly (readonly [string, string])[]) {
+    const map = new Map<string, string>(entries);
+    return {
+      getItem: (key: string) => map.get(key) ?? null,
+      setItem: (key: string, value: string) => void map.set(key, value),
+    };
+  }
+
+  it('reads a cart saved before the rename, so the rename orphans nobody', () => {
+    const saved = addItem(createCart(t0), 42, t0);
+    expect(loadCart(storageWithKeys([[KEY_BEFORE_RENAME, JSON.stringify(saved)]]))).toEqual(saved);
+  });
+
+  it('prefers the current key when a device somehow holds both', () => {
+    const older = addItem(createCart(t0), 1, t0);
+    const newer = addItem(createCart(t0), 2, t0);
+    const storage = storageWithKeys([
+      [KEY_BEFORE_RENAME, JSON.stringify(older)],
+      [CART_STORAGE_KEY, JSON.stringify(newer)],
+    ]);
+
+    expect(loadCart(storage).items[0]!.productId).toBe(2);
+  });
+
+  it('does not resurrect a stale pre-rename cart over a deliberately emptied one', () => {
+    const storage = storageWithKeys([[KEY_BEFORE_RENAME, JSON.stringify(addItem(createCart(t0), 1, t0))]]);
+    saveCart(storage, createCart(t0));
+
+    expect(loadCart(storage).items).toEqual([]);
+  });
 });

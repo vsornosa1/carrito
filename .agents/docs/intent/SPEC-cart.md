@@ -38,7 +38,7 @@ interface Cart {
   the amount the catalogue lists rather than at what the scales say, and a product
   the catalogue has dropped cannot be priced at all. A derived number presented as
   a receipt would be the same kind of lie as an invented nutrition figure.
-- Persisted in `localStorage` under `mercadonapp.cart.v1`. The key did **not**
+- Persisted in `localStorage` under `carrito.cart.v1`. The key did **not**
   change when quantities arrived: a cart saved before them reads back as one of
   each, and a stored quantity that could not have come from the app (zero,
   negative, fractional, a string) is treated the same way. Bumping the version
