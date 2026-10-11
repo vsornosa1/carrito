@@ -1,6 +1,5 @@
 import { useIsDesktop } from '../app/useMediaQuery.ts';
 import { formatPrice } from '../lib/format.ts';
-import { CarritoMark } from './CarritoMark.tsx';
 import { Icon } from './icons.tsx';
 import { navTabAttributes, NAV_TABS, tabIcon, tabLabel, type TabId } from './nav-tabs.tsx';
 import { SearchBar } from './SearchBar.tsx';
@@ -47,11 +46,9 @@ export function AppHeader({
 
   return (
     <header className="app-header">
-      {/* A brand mark, not a heading: each view owns the one h1 on the page. */}
-      <p className="app-header__brand">
-        <CarritoMark size={22} />
-        <span className="app-header__title">Carrito</span>
-      </p>
+      {/* No brand here: the cart tab is called Carrito, and a header repeating the word
+          beside it is the same word twice in a phone's first 60 pixels. The landing page
+          carries the mark; the installed icon carries it too. */}
 
       {listButton ? (
         <button

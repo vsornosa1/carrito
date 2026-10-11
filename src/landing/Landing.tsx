@@ -281,7 +281,7 @@ function Ordering() {
   return (
     <section className="order" aria-labelledby="order-title">
       <Reveal className="order__copy">
-        <p className="kicker">Sobre el orden de la lista</p>
+        <p className="kicker">Sobre el orden del carrito</p>
         <h2 id="order-title" className="section-title">
           No hay dos Mercadonas iguales.
         </h2>
@@ -292,7 +292,7 @@ function Ordering() {
           zona, o lo pones todo de la A a la Z para comprobar algo.
         </p>
         <p className="order__body">
-          Cuando vuelves, tu orden sigue donde lo dejaste. Es tu lista, no la nuestra.
+          Cuando vuelves, tu orden sigue donde lo dejaste. Es tu carrito, no el nuestro.
         </p>
       </Reveal>
     </section>

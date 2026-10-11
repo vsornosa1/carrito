@@ -43,7 +43,7 @@ export function OrderChip({ order, onChange }: OrderChipProps) {
       <div
         className="order__chip"
         role="group"
-        aria-label={`Orden de la lista: ${MODE_LABEL[order.mode]}`}
+        aria-label={`Orden del carrito: ${MODE_LABEL[order.mode]}`}
       >
         {modes.map(({ mode, label }) => (
           <button

@@ -94,7 +94,7 @@ export function ProductScreen({
 
           <div className="product-page__action">
             <button type="button" className="add-button" onClick={onAdd} disabled={added}>
-              {added ? 'En la lista ✓' : 'Añadir a la lista'}
+              {added ? 'En el carrito ✓' : 'Añadir al carrito'}
             </button>
           </div>
         </div>

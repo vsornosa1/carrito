@@ -157,13 +157,13 @@ describe('ProductScreen', () => {
   it('calls onAdd, and disables the button once added', async () => {
     const user = userEvent.setup();
     const { onAdd } = renderScreen();
-    await user.click(screen.getByRole('button', { name: 'Añadir a la lista' }));
+    await user.click(screen.getByRole('button', { name: 'Añadir al carrito' }));
     expect(onAdd).toHaveBeenCalled();
   });
 
   it('shows the added state as a disabled button', () => {
     renderScreen({ added: true });
-    expect(screen.getByRole('button', { name: 'En la lista ✓' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'En el carrito ✓' })).toBeDisabled();
   });
 
   it('shows the recommendation banner, with the reasons, when arriving from an alternative', () => {

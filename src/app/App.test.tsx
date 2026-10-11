@@ -57,7 +57,7 @@ describe('App — where it starts', () => {
     await screen.findByRole('button', { name: /Fruta y verdura/ });
     expect(screen.queryByRole('button', { name: 'Buscar' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Categorías' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Lista' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Carrito' })).toBeInTheDocument();
   });
 });
 
@@ -190,9 +190,9 @@ describe('App — searching from anywhere', () => {
     await user.type(searchField(), 'platano');
     await screen.findByText(/1 resultado para «platano»/);
 
-    await user.click(screen.getByRole('button', { name: 'Lista' }));
+    await user.click(screen.getByRole('button', { name: 'Carrito' }));
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Mi lista' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Carrito' })).toBeInTheDocument();
     expect(searchField()).toHaveValue('');
   });
 });
@@ -201,8 +201,8 @@ describe('App — the list', () => {
   it('shows the list when its section is chosen', async () => {
     const user = renderApp();
     await screen.findByRole('button', { name: /Fruta y verdura/ });
-    await user.click(screen.getByRole('button', { name: 'Lista' }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Mi lista' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Carrito' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Carrito' })).toBeInTheDocument();
   });
 
   it('says what the list costs in the navigation, without opening it', async () => {
@@ -215,7 +215,7 @@ describe('App — the list', () => {
     );
     renderApp();
 
-    const listTab = await screen.findByRole('button', { name: /Lista/ });
+    const listTab = await screen.findByRole('button', { name: /Carrito/ });
     expect(listTab.getAttribute('aria-label')).toContain('0,96');
   });
 });
@@ -263,13 +263,13 @@ describe('App — a product', () => {
     await user.click(await screen.findByRole('button', { name: /Plátano de Canarias IGP/ }));
 
     // The tabs step aside for the product, so the bar has to carry the list.
-    await user.click(screen.getByRole('button', { name: /Lista/ }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Mi lista' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Carrito/ }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Carrito' })).toBeInTheDocument();
   });
 
   it('offers exactly one way to the list, never two', async () => {
     renderApp('phone');
     await screen.findByRole('button', { name: /Fruta y verdura/ });
-    expect(screen.getAllByRole('button', { name: /Lista/ })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /Carrito/ })).toHaveLength(1);
   });
 });

@@ -67,7 +67,7 @@ function renderScreen(cart: Cart, order: OrderPreference = defaultOrder()) {
 const zoneHeadings = () =>
   screen.queryAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
 
-const summary = () => screen.getByRole('complementary', { name: 'Total de la lista' });
+const summary = () => screen.getByRole('complementary', { name: 'Total del carrito' });
 
 // Nothing here opens the browser's own alert any more: both destructive actions go
 // through the app's own modal, which the tests reach by clicking it.
@@ -75,7 +75,7 @@ const summary = () => screen.getByRole('complementary', { name: 'Total de la lis
 describe('CartScreen', () => {
   it('shows an empty state when the list is empty', () => {
     renderScreen({ items: [], updatedAt: '' });
-    expect(screen.getByText('La lista está vacía')).toBeInTheDocument();
+    expect(screen.getByText('El carrito está vacío')).toBeInTheDocument();
   });
 
   it('renders items and toggles them on tap', async () => {
@@ -99,9 +99,9 @@ describe('CartScreen', () => {
     const user = userEvent.setup();
     const { onClear } = renderScreen({ items: [item(2), item(1)], updatedAt: '' });
 
-    await user.click(screen.getByRole('button', { name: 'Vaciar lista' }));
+    await user.click(screen.getByRole('button', { name: 'Vaciar carrito' }));
 
-    const dialog = screen.getByRole('dialog', { name: '¿Vaciar la lista?' });
+    const dialog = screen.getByRole('dialog', { name: '¿Vaciar el carrito?' });
     expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveTextContent('2 productos');
     // Nothing has happened yet: a dialog is a question, not an action.
@@ -115,7 +115,7 @@ describe('CartScreen', () => {
     const user = userEvent.setup();
     const { onClear } = renderScreen({ items: [item(2)], updatedAt: '' });
 
-    await user.click(screen.getByRole('button', { name: 'Vaciar lista' }));
+    await user.click(screen.getByRole('button', { name: 'Vaciar carrito' }));
     await user.click(screen.getByRole('button', { name: 'Cancelar' }));
 
     expect(onClear).not.toHaveBeenCalled();
@@ -157,7 +157,7 @@ describe('CartScreen — the walk', () => {
 
   it('shows the order chip, so the order in effect is never invisible', () => {
     renderScreen({ items: [item(1)], updatedAt: '' });
-    expect(screen.getByRole('group', { name: /Orden de la lista/ })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /Orden del carrito/ })).toBeInTheDocument();
   });
 
   it('orders the products inside a zone when an arrangement exists', () => {
@@ -265,7 +265,7 @@ describe('CartScreen — A–Z', () => {
 
   it('still shows what the list costs', () => {
     renderScreen({ items: [item(1), item(2)], updatedAt: '' }, az);
-    expect(screen.getByRole('complementary', { name: 'Total de la lista' })).toBeInTheDocument();
+    expect(screen.getByRole('complementary', { name: 'Total del carrito' })).toBeInTheDocument();
   });
 });
 
@@ -303,7 +303,7 @@ describe('CartScreen — quantities', () => {
   it('names the step down as a removal when it is the last one', () => {
     renderScreen({ items: [item(1, 1)], updatedAt: '' });
     expect(
-      screen.getByRole('button', { name: 'Quitar Manzana Golden de la lista' }),
+      screen.getByRole('button', { name: 'Quitar Manzana Golden del carrito' }),
     ).toBeEnabled();
   });
 
@@ -311,7 +311,7 @@ describe('CartScreen — quantities', () => {
     const user = userEvent.setup();
     const { onRemove, onSetQuantity } = renderScreen({ items: [item(1, 1)], updatedAt: '' });
 
-    await user.click(screen.getByRole('button', { name: 'Quitar Manzana Golden de la lista' }));
+    await user.click(screen.getByRole('button', { name: 'Quitar Manzana Golden del carrito' }));
 
     expect(onRemove).toHaveBeenCalledWith(1);
     expect(onSetQuantity).not.toHaveBeenCalled();
@@ -426,6 +426,6 @@ describe('CartScreen — what it costs', () => {
 
   it('shows no total at all for an empty list, rather than a confident zero', () => {
     renderScreen({ items: [], updatedAt: '' });
-    expect(screen.queryByRole('complementary', { name: 'Total de la lista' })).toBeNull();
+    expect(screen.queryByRole('complementary', { name: 'Total del carrito' })).toBeNull();
   });
 });

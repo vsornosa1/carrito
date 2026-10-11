@@ -11,7 +11,7 @@ function renderDialog(overrides: Partial<Parameters<typeof ConfirmDialog>[0]> = 
   render(
     <ConfirmDialog
       open
-      title="¿Vaciar la lista?"
+      title="¿Vaciar el carrito?"
       message="Se quitarán 7 productos."
       confirmLabel="Vaciar"
       onConfirm={onConfirm}
@@ -25,7 +25,7 @@ function renderDialog(overrides: Partial<Parameters<typeof ConfirmDialog>[0]> = 
 describe('ConfirmDialog', () => {
   it('is a modal dialog that names itself, not an alert box', () => {
     renderDialog();
-    const dialog = screen.getByRole('dialog', { name: '¿Vaciar la lista?' });
+    const dialog = screen.getByRole('dialog', { name: '¿Vaciar el carrito?' });
     expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveAttribute('open');
   });
@@ -73,7 +73,7 @@ describe('ConfirmDialog', () => {
       <>
         <ConfirmDialog
           open
-          title="¿Vaciar la lista?"
+          title="¿Vaciar el carrito?"
           message="A"
           confirmLabel="Vaciar"
           onConfirm={vi.fn()}
@@ -92,7 +92,7 @@ describe('ConfirmDialog', () => {
 
     const ids = [...document.querySelectorAll('dialog h2')].map((h) => h.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(screen.getByRole('dialog', { name: '¿Vaciar la lista?' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: '¿Vaciar el carrito?' })).toBeInTheDocument();
   });
 });
 
@@ -102,11 +102,11 @@ describe('ConfirmDialog — opening and closing as the app drives it', () => {
     return (
       <>
         <button type="button" onClick={() => setOpen(true)}>
-          Vaciar lista
+          Vaciar carrito
         </button>
         <ConfirmDialog
           open={open}
-          title="¿Vaciar la lista?"
+          title="¿Vaciar el carrito?"
           message="Se quitarán 7 productos."
           confirmLabel="Vaciar"
           onConfirm={() => setOpen(false)}
@@ -122,8 +122,8 @@ describe('ConfirmDialog — opening and closing as the app drives it', () => {
 
     expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
 
-    await user.click(screen.getByRole('button', { name: 'Vaciar lista' }));
-    expect(screen.getByRole('dialog', { name: '¿Vaciar la lista?' })).toHaveAttribute('open');
+    await user.click(screen.getByRole('button', { name: 'Vaciar carrito' }));
+    expect(screen.getByRole('dialog', { name: '¿Vaciar el carrito?' })).toHaveAttribute('open');
 
     await user.click(screen.getByRole('button', { name: 'Vaciar' }));
     expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');

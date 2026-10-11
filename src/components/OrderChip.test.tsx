@@ -20,7 +20,7 @@ function ControlledChip() {
 }
 
 const groupName = () =>
-  screen.getByRole('group', { name: /Orden de la lista/ }).getAttribute('aria-label') ?? '';
+  screen.getByRole('group', { name: /Orden del carrito/ }).getAttribute('aria-label') ?? '';
 
 describe('OrderChip', () => {
   it('states the order in effect, in its accessible name and not only in colour', () => {

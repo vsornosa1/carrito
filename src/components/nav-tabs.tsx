@@ -13,7 +13,7 @@ export type TabId = 'browse' | 'cart';
 
 const LABELS: Record<TabId, string> = {
   browse: 'Categorías',
-  cart: 'Lista',
+  cart: 'Carrito',
 };
 
 const ICONS: Record<TabId, IconName> = {

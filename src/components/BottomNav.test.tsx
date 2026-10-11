@@ -26,13 +26,13 @@ describe('BottomNav', () => {
     renderNav();
     expect(screen.getAllByRole('button')).toHaveLength(2);
     expect(screen.getByRole('button', { name: /Categorías/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Lista/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Carrito/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Buscar/ })).toBeNull();
   });
 
   it('marks the active tab for assistive technology, not just with colour', () => {
     renderNav({ active: 'cart' });
-    expect(screen.getByRole('button', { name: /Lista/ })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: /Carrito/ })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: /Categorías/ })).not.toHaveAttribute('aria-current');
   });
 
@@ -46,7 +46,7 @@ describe('BottomNav', () => {
   it('hides the badge when the list is empty, rather than showing a zero', () => {
     renderNav({ cartCount: 0 });
     expect(document.querySelector('.bottom-nav__badge')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Lista' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Carrito' })).toBeInTheDocument();
   });
 
   it('shows the count and says it in the accessible name, in the correct number', () => {
@@ -54,18 +54,18 @@ describe('BottomNav', () => {
       <BottomNav active="browse" cartCount={1} cartTotal={1.19} onSelect={vi.fn()} />,
     );
     expect(document.querySelector('.bottom-nav__badge')?.textContent).toBe('1');
-    expect(screen.getByRole('button', { name: /Lista/ }).getAttribute('aria-label')).toContain(
+    expect(screen.getByRole('button', { name: /Carrito/ }).getAttribute('aria-label')).toContain(
       '1 producto',
     );
 
     rerender(<BottomNav active="browse" cartCount={4} cartTotal={12.4} onSelect={vi.fn()} />);
-    const label = screen.getByRole('button', { name: /Lista/ }).getAttribute('aria-label');
+    const label = screen.getByRole('button', { name: /Carrito/ }).getAttribute('aria-label');
     expect(label).toContain('4 productos');
   });
 
   it('says what the list costs, not only how many things are on it', () => {
     renderNav({ cartCount: 3, cartTotal: 12.4 });
-    expect(screen.getByRole('button', { name: /Lista/ }).getAttribute('aria-label')).toContain(
+    expect(screen.getByRole('button', { name: /Carrito/ }).getAttribute('aria-label')).toContain(
       '12,40',
     );
   });

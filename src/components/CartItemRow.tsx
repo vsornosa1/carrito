@@ -63,7 +63,7 @@ export function CartItemRow({
         <button
           type="button"
           className="stepper__button"
-          aria-label={last ? `Quitar ${product.name} de la lista` : `Quitar uno de ${product.name}`}
+          aria-label={last ? `Quitar ${product.name} del carrito` : `Quitar uno de ${product.name}`}
           onClick={() => (last ? onRemove() : onSetQuantity(item.quantity - 1))}
         >
           −

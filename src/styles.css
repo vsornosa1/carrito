@@ -94,14 +94,6 @@ img {
   color: #ffffff;
 }
 
-.app-header__brand {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: 0;
-}
-
 .app-header__title {
   flex: none;
   margin: 0;

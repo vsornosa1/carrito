@@ -85,8 +85,8 @@ export function CartScreen({
   // Started on the safe choice by `ConfirmDialog`, which focuses Cancelar.
   const questions = {
     clear: {
-      title: '¿Vaciar la lista?',
-      message: `La lista quedará vacía — ${pluralise(cart.items.length, 'producto', 'productos')}.`,
+      title: '¿Vaciar el carrito?',
+      message: `El carrito quedará vacío — ${pluralise(cart.items.length, 'producto', 'productos')}.`,
       confirmLabel: 'Vaciar',
       confirm: onClear,
     },
@@ -101,11 +101,11 @@ export function CartScreen({
 
   if (cart.items.length === 0) {
     return (
-      <section aria-label="Mi lista">
-        <h1 className="screen-title">Mi lista</h1>
+      <section aria-label="Carrito">
+        <h1 className="screen-title">Carrito</h1>
         <StateMessage
           icon="cart"
-          title="La lista está vacía"
+          title="El carrito está vacío"
           hint="Busca un producto y añádelo. Aquí podrás ir tachándolo en la tienda."
         />
       </section>
@@ -113,8 +113,8 @@ export function CartScreen({
   }
 
   return (
-    <section aria-label="Mi lista">
-      <h1 className="screen-title">Mi lista</h1>
+    <section aria-label="Carrito">
+      <h1 className="screen-title">Carrito</h1>
 
       <div className="cart-layout">
         <div className="cart-layout__list">
@@ -219,7 +219,7 @@ export function CartScreen({
               </button>
             ) : null}
             <button type="button" className="cart-clear" onClick={() => setAsking('clear')}>
-              Vaciar lista
+              Vaciar carrito
             </button>
           </div>
         </div>

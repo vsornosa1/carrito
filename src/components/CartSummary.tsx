@@ -18,8 +18,8 @@ export function CartSummary({ total }: CartSummaryProps) {
   if (total.lines === 0) return null;
 
   return (
-    <aside className="cart-summary" aria-label="Total de la lista">
-      <p className="cart-summary__label">Total de la lista</p>
+    <aside className="cart-summary" aria-label="Total del carrito">
+      <p className="cart-summary__label">Total del carrito</p>
       <p className="cart-summary__amount">{formatPrice(total.total)}</p>
       <p className="cart-summary__note">
         {pluralise(total.units, 'producto', 'productos')}

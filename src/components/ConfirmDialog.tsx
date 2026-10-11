@@ -2,7 +2,7 @@ import { useEffect, useId, useRef } from 'react';
 
 interface ConfirmDialogProps {
   open: boolean;
-  /** As a question: "¿Vaciar la lista?" */
+  /** As a question: "¿Vaciar el carrito?" */
   title: string;
   /** What will happen, in the user's terms. */
   message: string;
