@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -32,6 +32,10 @@ const searchField = () => screen.getByRole('searchbox', { name: 'Buscar producto
 
 beforeEach(() => {
   window.localStorage.clear();
+  // History is shared by every test in this file, and the app now pushes an entry per
+  // open product. Without this reset, a leftover entry makes the next test start
+  // mid-navigation and its push get skipped as a duplicate.
+  window.history.replaceState(null, '');
   vi.stubGlobal(
     'fetch',
     vi.fn(async () => ({ ok: true, json: async () => catalog })),
@@ -54,6 +58,71 @@ describe('App — where it starts', () => {
     expect(screen.queryByRole('button', { name: 'Buscar' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Categorías' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Lista' })).toBeInTheDocument();
+  });
+});
+
+/*
+  The bug these defend against: navigation is React state, so the browser's history knew
+  nothing about it. Opening a product and pressing back took you out of the app instead of
+  out of the product — the browser's back button and the app's "Volver" meant two
+  different things.
+
+  jsdom does not perform real navigations, so `history.back()` is not usable here. The
+  contract is asserted at the seam the browser actually uses: the entry the app pushes,
+  and how it reacts to `popstate`.
+*/
+describe('App — the browser back button', () => {
+  async function openFromSearch(user: ReturnType<typeof userEvent.setup>) {
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+    await user.type(searchField(), 'platano');
+    const row = (await screen.findAllByRole('button', { name: /Plátano de Canarias/ }))[0]!;
+    await user.click(row);
+    await screen.findByRole('button', { name: /Volver/ });
+  }
+
+  it('opens a product as one history entry, so one press of back leaves the product', async () => {
+    const user = renderApp();
+    const urlBefore = window.location.href;
+
+    await openFromSearch(user);
+
+    expect(window.history.state).toEqual({ product: 1 });
+    // The URL is left alone on purpose: this is a static host with no server to resolve
+    // /app/producto/1, so a deep link would 404 on refresh.
+    expect(window.location.href).toBe(urlBefore);
+  });
+
+  it('closes the product when the browser goes back, exactly as the app button does', async () => {
+    const user = renderApp();
+    await openFromSearch(user);
+
+    // Wrapped in act: popstate arrives outside React's event system, so without it the
+    // state update is only *scheduled* when the assertion runs.
+    act(() => {
+      window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+    });
+
+    expect(screen.queryByRole('button', { name: /Volver/ })).toBeNull();
+    expect(searchField()).toHaveValue('platano');
+  });
+
+  it('reopens the right product when the browser goes forward onto it', async () => {
+    const user = renderApp();
+    await openFromSearch(user);
+
+    act(() => {
+      window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+    });
+    expect(screen.queryByRole('button', { name: /Volver/ })).toBeNull();
+
+    act(() => {
+      window.dispatchEvent(new PopStateEvent('popstate', { state: { product: 1 } }));
+    });
+
+    expect(await screen.findByRole('button', { name: /Volver/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: /Plátano de Canarias/ }),
+    ).toBeInTheDocument();
   });
 });
 
