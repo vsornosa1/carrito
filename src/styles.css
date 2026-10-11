@@ -4,6 +4,7 @@
 :root {
   --color-primary: #00a650;
   --color-primary-strong: #007a3a; /* for white text on green, and green text on tint — meets WCAG AA */
+  --color-primary-deep: #005c2c; /* hover on a solid green control; white text is 8:1 on it */
   --color-primary-tint: #e7f6ec;
   --color-bg: #ffffff;
   --color-surface: #f4f5f0;
@@ -1680,3 +1681,44 @@ img {
 .app-main:focus {
   outline: none;
 }
+
+/* ---- Support ----------------------------------------------------------------
+   At the end of the catalogue, not in the app bar. The bar is where a thumb goes
+   for the search field, and a request for money does not belong in that space. */
+.support {
+  margin-top: var(--space-6);
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.support__note {
+  max-width: 34ch;
+  margin: 0 auto var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.support__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem; /* the same 44px floor the rest of the app uses */
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-strong);
+  color: #ffffff;
+  font-size: var(--text-base);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .support__action:hover {
+    background: var(--color-primary-deep);
+  }
+}
+

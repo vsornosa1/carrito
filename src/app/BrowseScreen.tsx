@@ -8,6 +8,7 @@ import {
 } from '../components/CategoryBrowser.tsx';
 import { ProductResults } from '../components/ProductResults.tsx';
 import { StateMessage } from '../components/StateMessage.tsx';
+import { SupportLink } from '../components/SupportLink.tsx';
 import { buildCategoryTree } from '../lib/category-tree.ts';
 import { pluralise } from '../lib/plural.ts';
 import type { EnrichedCatalogProduct } from '../types/catalog.ts';
@@ -119,6 +120,7 @@ export function BrowseScreen({ products, status, onSelectProduct }: BrowseScreen
     return (
       <Frame>
         <SectionGridByZone sections={tree} onSelect={setSectionId} />
+        <SupportLink />
       </Frame>
     );
   }

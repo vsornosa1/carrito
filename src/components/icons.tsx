@@ -43,6 +43,9 @@ const PATHS: Record<string, ReactElement> = {
       <line x1="7" y1="13" x2="13" y2="13" />
     </>
   ),
+  heart: (
+    <path d="M12 20.4 4.8 13.1a4.7 4.7 0 0 1 6.6-6.7l.6.6.6-.6a4.7 4.7 0 0 1 6.6 6.7z" />
+  ),
 };
 
 export type IconName = keyof typeof PATHS;
