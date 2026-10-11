@@ -1,10 +1,36 @@
+# Dependencies.
 node_modules/
-dist/
-*.local
-.DS_Store
 
-# Editor configuration is per-developer, not part of the project.
+# Build output. Rebuilt by `npm run build`; committing it would put a stale copy of the
+# catalogue in the history.
+dist/
+
+# Test coverage, written by `npm run test:coverage`.
+coverage/
+
+# Incremental TypeScript state.
+*.tsbuildinfo
+
+# Local overrides of any kind.
+*.local
+*.log
+
+# Per-developer editor and tool state.
+.DS_Store
 .vscode/
+.idea/
+
+# Cloudflare and Vercel project state. Both are written by their CLIs on first run and
+# both can name the account a project belongs to, which is nobody else's business.
+.wrangler/
+.vercel/
+
+# Environment files. Only the example is committed: everything else can hold a secret, and
+# a secret that reaches git is a secret that has to be rotated. Vercel and Cloudflare both
+# inject these at build time, so nothing here is needed to reproduce a deploy.
+.env
+.env.*
+!.env.example
 
 # Data pipeline.
 # data/raw and data/cache are cheap to re-download, and re-downloading them is polite to the source.

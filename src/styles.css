@@ -1119,10 +1119,13 @@ img {
 }
 
 /* Primary action, fixed at the foot of the screen so it is never scrolled away.
-   A product hides the navigation on a phone, so nothing sits underneath it. */
+   It sits *above* the navigation rather than at the bottom edge: the tabs stay put
+   on a product now, and a bar pinned to the bottom would be underneath them —
+   z-index does not save it, the nav is the higher layer by design. Same offset the
+   cart's summary uses, so the two bars land on the same line. */
 .product-page__action {
   position: fixed;
-  inset: auto 0 env(safe-area-inset-bottom, 0) 0;
+  inset: auto 0 calc(var(--nav-height) + env(safe-area-inset-bottom, 0)) 0;
   z-index: 15;
   max-width: 40rem;
   margin: 0 auto;
