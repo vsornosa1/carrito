@@ -17,9 +17,28 @@ Estrechar el ámbito es lo que mantiene el catálogo fuera de `/`, y estrechar u
 
 ## Despliegue
 
-Estático. En Cloudflare Pages: comando `npm run build`, salida `dist`. La versión de Node la da `.nvmrc` — 22, porque los scripts de datos usan el *type stripping* nativo.
+Estático: `npm run build` deja todo en `dist/` (16 ficheros, 5,9 MB), sin Functions y sin
+red en el paso de build, porque el catálogo está versionado.
 
-`public/_headers` lo respetan tanto Cloudflare Pages como Netlify, y fija tres cosas: el CSP, la política de caché de `/sw.js` y el `no-cache` de los dos documentos HTML.
+**Node 22 es obligatorio.** `npm run build` ejecuta antes `scripts/ensure-catalog.ts`, que
+usa el *type stripping* nativo de Node 22. Con Node 18 o 20 el build muere ahí, antes de
+llegar a Vite, y el error no dice "Node equivocado". Define `NODE_VERSION=22` en el
+proyecto — no basta con `.nvmrc`.
+
+**Cloudflare Workers** (lo que configura el panel con `Deploy command: npx wrangler deploy`):
+`wrangler.jsonc` declara `assets.directory: ./dist`, que es lo que Wrangler sube. Sin ese
+bloque no tiene nada que desplegar. Comando de build `npm run build`, directorio raíz `/`.
+
+**Cloudflare Pages** (alternativa, sin fichero de config): build `npm run build`, salida
+`dist`. Ignora `wrangler.jsonc`.
+
+`public/_headers` lo respetan ambos, y fija el CSP, la caché de `/sw.js` y el `no-cache` de
+los dos documentos HTML. Después del primer despliegue, comprueba que llega:
+
+```bash
+curl -I https://carrito.dev/        # cache-control: public, max-age=0, must-revalidate
+curl -I https://carrito.dev/app/    # 200, y es la app, no la presentación
+```
 
 ## Qué hace
 

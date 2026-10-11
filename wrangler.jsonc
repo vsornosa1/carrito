@@ -1,0 +1,27 @@
+{
+  // Cloudflare Workers, serving the built site as static assets.
+  //
+  // This file exists because the deploy command is `npx wrangler deploy`, and without a
+  // configuration that (`assets`) block, Wrangler has nothing to upload: it looks for a
+  // Worker script, finds none, and fails the build at the last step — after a successful
+  // `npm run build`, so the error reads as a deploy problem rather than a config one.
+  //
+  // A Pages project ignores this file, so it is harmless either way.
+  "name": "carrito",
+  "compatibility_date": "2026-10-11",
+
+  "assets": {
+    // Vite's output. The catalogue and both documents are already inside it.
+    "directory": "./dist",
+
+    // `auto-trailing-slash` is what makes /app resolve to /app/index.html. This site is
+    // two real documents rather than one app with a router, so the default matters more
+    // here than usual: without it the app's own URL stops working.
+    "html_handling": "auto-trailing-slash",
+
+    // `none`, not `single-page-application`: serving the landing page for every unknown
+    // path would hide a typo behind a page that looks fine, and there is no client router
+    // for a fallback to boot.
+    "not_found_handling": "none"
+  }
+}
