@@ -108,6 +108,15 @@ export function App() {
     });
   };
 
+  // Typing while a product is open used to change the query and nothing else, because
+  // the open product wins the render — so the search only appeared after you closed it,
+  // which reads as "search does not work from inside a product". Searching is a change of
+  // place, so it is treated as one.
+  const search = (value: string) => {
+    setQuery(value);
+    if (value.trim() !== '') setOpenProduct(null);
+  };
+
   // Choosing a section is also how you leave a search, so the field is cleared:
   // a query that outlived the click would keep overriding the tab.
   const selectTab = (next: TabId) => {
@@ -170,7 +179,7 @@ export function App() {
     <>
       <AppHeader
         query={query}
-        onQueryChange={setQuery}
+        onQueryChange={search}
         activeTab={selected === null ? tab : null}
         onSelectTab={selectTab}
         cartCount={totals.units}

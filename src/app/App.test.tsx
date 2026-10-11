@@ -126,6 +126,42 @@ describe('App — the browser back button', () => {
   });
 });
 
+/*
+  The symptom reported: search "does not work from inside a product; it only retrieves
+  when you go back to the list". The cause was render precedence — an open product beat
+  the query — so typing changed the field and nothing else.
+*/
+describe('App — searching from inside a product', () => {
+  it('shows the results as soon as you type, instead of waiting for you to close it', async () => {
+    const user = renderApp();
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+
+    await user.type(searchField(), 'platano');
+    await user.click((await screen.findAllByRole('button', { name: /Plátano de Canarias/ }))[0]!);
+    await screen.findByRole('button', { name: /Volver/ });
+
+    await user.clear(searchField());
+    await user.type(searchField(), 'leche');
+
+    expect(await screen.findByRole('button', { name: /Leche entera/ })).toBeInTheDocument();
+    // Typing moved us out of the product, which is what makes the results visible.
+    expect(screen.queryByRole('button', { name: /Volver/ })).toBeNull();
+  });
+
+  it('leaves the product alone when the field is merely cleared', async () => {
+    const user = renderApp();
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+
+    await user.type(searchField(), 'platano');
+    await user.click((await screen.findAllByRole('button', { name: /Plátano de Canarias/ }))[0]!);
+    await screen.findByRole('button', { name: /Volver/ });
+
+    await user.clear(searchField());
+
+    expect(screen.getByRole('button', { name: /Volver/ })).toBeInTheDocument();
+  });
+});
+
 describe('App — searching from anywhere', () => {
   it('replaces the section with results as soon as something is typed', async () => {
     const user = renderApp();

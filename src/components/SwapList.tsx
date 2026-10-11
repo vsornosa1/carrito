@@ -57,7 +57,10 @@ function noneBetterMessage(because: NoneBetterBecause, comparedCount: number): s
     return `Lo hemos comparado con ${compared} de su categoría y tampoco hay uno mejor: en esta categoría son todos igual de procesados.`;
   }
 
-  return `Lo hemos comparado con ${compared} de su categoría y ninguno es mejor.`;
+  // A third of the catalogue lands here: no ingredient list, so no processing signal, so
+  // no claim about the product or about its shelf. Saying "ninguno es mejor" told the
+  // reader nothing at all, and "unknown" is only honest if it says *what* is unknown.
+  return `Lo hemos comparado con ${compared} de su categoría y ninguno mejora sus cifras. De este no tenemos la lista de ingredientes, así que no podemos decirte si es porque está bien o porque en esta categoría no hay nada mejor.`;
 }
 
 export function SwapList({ result, onSelect }: SwapListProps) {

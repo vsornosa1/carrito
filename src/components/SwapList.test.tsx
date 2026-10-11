@@ -118,7 +118,8 @@ describe('SwapList — disclosed cost', () => {
       <SwapList result={{ kind: 'none-better', comparedCount: 27, because: 'unclear' }} onSelect={vi.fn()} />,
     );
     expect(screen.getByText(/27 productos de su categoría/i)).toBeInTheDocument();
-    expect(screen.getByText(/ninguno es mejor/i)).toBeInTheDocument();
+    // "unknown" has to say what is unknown, or it says nothing.
+    expect(screen.getByText(/no tenemos la lista de ingredientes/i)).toBeInTheDocument();
   });
 
   it('praises a product that is already whole, rather than warning about its shelf', () => {
