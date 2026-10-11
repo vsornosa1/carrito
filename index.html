@@ -3,15 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#007a3a" />
-    <meta name="description" content="Tu asistente de nutrición para la compra en Mercadona" />
+    <meta name="theme-color" content="#f7f5f1" />
+    <meta
+      name="description"
+      content="Carrito lee las etiquetas de los 4.300 productos de Mercadona: qué llevan, cuánto azúcar y cuántos aditivos. Y te enseña una alternativa mejor del mismo pasillo. Gratis, sin cuentas y sin anuncios."
+    />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/png" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <title>Carrito</title>
+    <title>Carrito — sabe qué hay dentro de lo que compras</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <!--
+      No service worker on this page, on purpose. It is registered from /app and
+      scoped there, so a stranger arriving from a shared link transfers a page rather
+      than the 5.8 MB catalogue. See src/landing/main.tsx.
+    -->
+    <script type="module" src="/src/landing/main.tsx"></script>
   </body>
 </html>

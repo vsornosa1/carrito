@@ -1,0 +1,532 @@
+/*
+  The landing page's own identity.
+
+  Deliberately NOT the app's stylesheet. The app is a dense, green, information-first
+  tool used one-handed in a shop; this page is a poster that has five seconds to be
+  understood. Sharing the tokens would make one of the two worse.
+
+  The accent is not Mercadona green either — the retailer is changing its palette, and
+  a landing page that borrowed it would be a promise about a shop rather than about
+  the app. `--accent-deep` is the text-safe variant: `--accent` on paper is only about
+  3:1, which is fine for a rule and not for a sentence.
+*/
+:root {
+  --paper: #f7f5f1;
+  --paper-card: #fffdf9;
+  --ink: #14161a;
+  --ink-muted: #5c5f63;
+  --line: #e3ded4;
+  --accent: #e04a2f;
+  --accent-deep: #b8341c;
+  --good: #007a3a;
+
+  --radius: 14px;
+  --display: clamp(2.5rem, 8.5vw, 4.5rem);
+  --measure: 33rem;
+  --gutter: clamp(1.25rem, 5vw, 3rem);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+/* ---- Skip link ---- */
+.landing__skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10;
+  padding: 0.75rem 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.landing__skip:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+/* ---- Bar ---- */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem var(--gutter);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+
+.bar__mark {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.bar__cta {
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 1rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+/* ---- Layout ---- */
+.landing__main {
+  margin: 0 auto;
+  max-width: 74rem;
+  padding: 0 var(--gutter);
+}
+
+.hero {
+  display: grid;
+  gap: clamp(2rem, 6vw, 4rem);
+  padding: clamp(2.5rem, 8vw, 5.5rem) 0 clamp(3rem, 8vw, 6rem);
+}
+
+@media (min-width: 58rem) {
+  .hero {
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: center;
+  }
+}
+
+/* ---- Hero copy ---- */
+.hero__eyebrow {
+  margin: 0 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+
+.hero__title {
+  margin: 0;
+  font-size: var(--display);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.hero__lead {
+  max-width: var(--measure);
+  margin: 1.25rem 0 0;
+  font-size: clamp(1.0625rem, 2vw, 1.25rem);
+  color: var(--ink-muted);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 200ms ease, background-color 200ms ease, color 200ms ease,
+    border-color 200ms ease;
+}
+
+.btn--primary {
+  background: var(--accent-deep);
+  color: #ffffff;
+}
+
+.btn--ghost {
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+
+@media (hover: hover) {
+  .btn--primary:hover {
+    background: var(--ink);
+    transform: translateY(-2px);
+  }
+
+  .btn--ghost:hover {
+    background: var(--ink);
+    color: var(--paper);
+    transform: translateY(-2px);
+  }
+
+  .bar__cta:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+}
+
+.hero__pron {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.hero__pron-word {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-card);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* ---- Hero demo ---- */
+.demo {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--paper-card);
+  box-shadow: 0 18px 40px -28px rgba(20, 22, 26, 0.4);
+}
+
+.demo__card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.demo__card-name {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.demo__card-badge {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent-deep);
+}
+
+.demo__swap {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-left: 3px solid var(--good);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: #eef7f0;
+  color: #0f5132;
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 480ms ease, transform 480ms ease;
+}
+
+.demo--swap .demo__swap,
+.demo--order .demo__swap {
+  opacity: 1;
+  transform: none;
+}
+
+.demo__zones {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  opacity: 0.28;
+  transition: opacity 600ms ease;
+}
+
+.demo--order .demo__zones {
+  opacity: 1;
+}
+
+.demo__zone {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.demo__zone-name {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.demo__items {
+  list-style: none;
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+}
+
+.demo__item {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+  font-size: 0.875rem;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+.demo--order .demo__item {
+  opacity: 1;
+  transform: none;
+}
+
+/* Staggered so the list assembles rather than appearing. */
+.demo--order .demo__item:nth-child(1) {
+  transition-delay: 40ms;
+}
+.demo--order .demo__item:nth-child(2) {
+  transition-delay: 150ms;
+}
+
+.demo--order .demo__zone:nth-child(2) .demo__item:nth-child(1) {
+  transition-delay: 260ms;
+}
+
+.demo--order .demo__zone:nth-child(3) .demo__item:nth-child(1) {
+  transition-delay: 370ms;
+}
+
+.demo--order .demo__zone:nth-child(4) .demo__item:nth-child(1) {
+  transition-delay: 480ms;
+}
+
+.demo--order .demo__zone:nth-child(5) .demo__item:nth-child(1) {
+  transition-delay: 590ms;
+}
+
+.demo__caption {
+  margin: 0;
+  padding-top: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--accent-deep);
+  animation: rise 520ms ease both;
+}
+
+/* ---- Sections ---- */
+.kicker {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+
+.section-title {
+  margin: 0;
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.steps {
+  padding: clamp(2.5rem, 6vw, 4rem) 0;
+  border-top: 1px solid var(--line);
+}
+
+.steps__list {
+  list-style: none;
+  display: grid;
+  gap: 1.5rem;
+  margin: 2rem 0 0;
+  padding: 0;
+}
+
+@media (min-width: 52rem) {
+  .steps__list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+.steps__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.75rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.steps__title {
+  margin: 0 0 0.4rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.steps__body {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.9375rem;
+}
+
+.order {
+  padding: clamp(2.5rem, 6vw, 4rem) 0;
+  border-top: 1px solid var(--line);
+}
+
+.order__copy {
+  max-width: 46rem;
+}
+
+.order__body {
+  margin: 1rem 0 0;
+  color: var(--ink-muted);
+  font-size: 1.0625rem;
+}
+
+.support-landing {
+  padding: clamp(2rem, 5vw, 3.5rem) 0 clamp(3rem, 7vw, 5rem);
+}
+
+.support-landing__panel {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--paper-card);
+}
+
+.support-landing__body {
+  max-width: var(--measure);
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+.foot {
+  display: grid;
+  gap: 0.4rem;
+  padding: 2rem var(--gutter) 3rem;
+  border-top: 1px solid var(--line);
+}
+
+.foot__note {
+  margin: 0;
+  max-width: 52rem;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+/* ---- Reveal ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 620ms ease, transform 620ms ease;
+}
+
+.reveal--in {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* ---- Focus ---- */
+a:focus-visible,
+.landing__skip:focus-visible {
+  outline: 3px solid var(--accent-deep);
+  outline-offset: 3px;
+}
+
+/*
+  Reduced motion means no motion, not slower motion: the reveal is settled, the
+  demo is not animated, and the captions do not rise. The demo renders its final
+  state instead, which is the list already in trip order.
+*/
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .demo__swap,
+  .demo__zones,
+  .demo__item {
+    opacity: 1;
+    transform: none;
+  }
+
+  .demo__zones {
+    opacity: 1;
+  }
+}

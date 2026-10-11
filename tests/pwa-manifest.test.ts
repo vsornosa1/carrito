@@ -29,7 +29,11 @@ describe('PWA manifest contract', () => {
     expect(manifest.name).toBeTruthy();
     expect(manifest.lang).toBe('es');
     expect(manifest.display).toBe('standalone');
-    expect(manifest.start_url).toBe('/');
+    // The app lives at /app because the root belongs to the landing page. The scope
+    // moves with it, which is what keeps the 5.8 MB catalogue off a stranger's first
+    // visit: the service worker is only registered from /app, so only app users pay.
+    expect(manifest.start_url).toBe('/app/');
+    expect(manifest.scope).toBe('/app/');
     expect(manifest.theme_color).toBeTruthy();
   });
 
