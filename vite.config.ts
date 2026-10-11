@@ -27,6 +27,11 @@ export default defineConfig({
         // The app's HTML, which is no longer at the root.
         navigateFallback: '/app/index.html',
         globPatterns: ['**/*.{js,css,html,png,svg,webmanifest,json}'],
+        // The landing page's own assets are never needed by the app, and the landing
+        // page installs no worker — so precaching them would charge every app user for
+        // a page they do not open. Named `landing-*` because that is the entry name in
+        // the rollup input above, so this cannot drift out of date quietly.
+        globIgnores: ['**/landing-*.js', '**/landing-*.css'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
     }),

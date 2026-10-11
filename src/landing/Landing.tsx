@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion';
 
 import {
   HERO_BEATS,
@@ -9,38 +10,54 @@ import {
   orderedItems,
   zoneLabel,
 } from './hero-order.ts';
-import { usePrefersReducedMotion, useReveal } from './use-reveal.ts';
 
-// Trailing slash on purpose: /app is a real document at app/index.html, and the
-// trailing slash is what makes a static host resolve the directory index rather than
-// guess. The manifest's start_url says the same thing.
 const APP_URL = '/app/';
 const KOFI_URL = 'https://ko-fi.com/sornosa';
 
-/** Fades its children in the first time they scroll into view. */
-function Reveal({ children, className }: { children: ReactNode; className?: string }) {
-  const { ref, shown } = useReveal<HTMLDivElement>();
+/** A single easing for the whole page, so nothing looks like it arrived from elsewhere. */
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
+/**
+ * The landing page.
+ *
+ * `MotionConfig reducedMotion="user"` is the reason this page can be as animated as it
+ * is: framer-motion disables transform and layout animations for readers who have asked
+ * for less motion, so the page does not have to choose between standing out and being
+ * usable. The hero additionally stops auto-playing entirely — see `Hero`.
+ */
+function Reveal({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div ref={ref} className={`${className ?? ''} reveal${shown ? ' reveal--in' : ''}`}>
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.65, ease: EASE }}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
 function Bar() {
   return (
-    <header className="bar">
+    <motion.header
+      className="bar"
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: EASE }}
+    >
       <p className="bar__mark">Carrito</p>
-      <a className="bar__cta" href={APP_URL}>
+      <motion.a className="bar__cta" href={APP_URL} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }}>
         Abrir la app
-      </a>
-    </header>
+      </motion.a>
+    </motion.header>
   );
 }
 
 function Hero() {
-  const reduce = usePrefersReducedMotion();
+  // Null on the server and in tests; treated as "no preference".
+  const reduce = useReducedMotion() ?? false;
   const [beat, setBeat] = useState(0);
 
   useEffect(() => {
@@ -49,78 +66,138 @@ function Hero() {
     return () => window.clearInterval(id);
   }, [reduce]);
 
-  // Under reduced motion the demo does not animate: it shows its final state, the
-  // list already in trip order. Slowing the animation down would still be motion.
+  // Under reduced motion the hero does not play at all: it shows the last beat, which is
+  // the list already in trip order. A slower animation would still be an animation.
   const shown = reduce ? HERO_BEATS.length - 1 : beat;
-  const ordered = orderedItems();
-  const zones = [...new Set(ordered.map((item) => item.zone))];
+  const phase = HERO_BEATS[shown]!;
+
+  // The reorder is the point. As they were added, the items are in no particular order;
+  // on the last beat they take their trip order, and framer's `layout` animates each row
+  // to its new place rather than cross-fading two lists.
+  const rows = phase.id === 'order' ? orderedItems() : [...HERO_ITEMS];
 
   return (
     <section className="hero" aria-labelledby="hero-title">
-      <Reveal className="hero__copy">
-        <p className="hero__eyebrow">Gratis · sin cuentas · sin anuncios</p>
-        <h1 id="hero-title" className="hero__title">
+      <motion.div
+        className="hero__copy"
+        initial="hidden"
+        animate="shown"
+        variants={{ shown: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } } }}
+      >
+        <motion.p
+          className="hero__eyebrow"
+          variants={{ hidden: { opacity: 0, y: 14 }, shown: { opacity: 1, y: 0 } }}
+          transition={{ duration: 0.5, ease: EASE }}
+        >
+          Gratis · sin cuentas · sin anuncios
+        </motion.p>
+
+        <motion.h1
+          id="hero-title"
+          className="hero__title"
+          variants={{ hidden: { opacity: 0, y: 20 }, shown: { opacity: 1, y: 0 } }}
+          transition={{ duration: 0.7, ease: EASE }}
+        >
           Sabe qué hay dentro de lo que compras.
-        </h1>
-        <p className="hero__lead">
+        </motion.h1>
+
+        <motion.p
+          className="hero__lead"
+          variants={{ hidden: { opacity: 0, y: 16 }, shown: { opacity: 1, y: 0 } }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
           Carrito lee las etiquetas de los 4.300 productos de Mercadona y te dice qué llevan,
           cuánto azúcar y cuántos aditivos. Y cuando algo no te conviene, te enseña una
           alternativa mejor del mismo pasillo.
-        </p>
-        <div className="hero__actions">
-          <a className="btn btn--primary" href={APP_URL}>
+        </motion.p>
+
+        <motion.div
+          className="hero__actions"
+          variants={{ hidden: { opacity: 0, y: 16 }, shown: { opacity: 1, y: 0 } }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
+          <motion.a
+            className="btn btn--primary"
+            href={APP_URL}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.97 }}
+          >
             Abrir la app
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             className="btn btn--ghost"
             href={KOFI_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Invítame a un café (se abre en una pestaña nueva)"
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.97 }}
           >
             Invítame a un café
-          </a>
-        </div>
-        <p className="hero__pron">
+          </motion.a>
+        </motion.div>
+
+        <motion.p
+          className="hero__pron"
+          variants={{ hidden: { opacity: 0 }, shown: { opacity: 1 } }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
           <span className="hero__pron-word">ca·RRI·to</span>
           <span className="hero__pron-note">
             el de empujar por los pasillos y el de volver a casa
           </span>
-        </p>
-      </Reveal>
+        </motion.p>
+      </motion.div>
 
-      {/* Decorative: every claim it acts out is stated in the copy around it. */}
       <Reveal className="hero__demo">
-        <div className={`demo demo--${HERO_BEATS[shown]!.id}`} aria-hidden="true">
-          <div className="demo__card">
-            <p className="demo__card-name">{HERO_ITEMS[0]!.name}</p>
-            <p className="demo__card-badge">{HERO_BEATS[0]!.caption}</p>
-          </div>
+        {/* Outside the aria-hidden demo, because it qualifies everything inside it. */}
+        <p className="demo__tag">Ejemplo</p>
 
-          <p className="demo__swap">{HERO_BEATS[1]!.caption}</p>
+        {/* Decorative: every claim it acts out is stated in the copy beside it. And the
+            numbers are gone — the app refuses to invent one, and so does its poster. */}
+        <div className="demo" aria-hidden="true">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={phase.id}
+              className="demo__card"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.32, ease: EASE }}
+            >
+              <p className="demo__card-name">{HERO_ITEMS[0]!.name}</p>
+              <p className="demo__card-badge">{phase.badge}</p>
+            </motion.div>
+          </AnimatePresence>
 
-          <ul className="demo__zones" role="list">
-            {zones.map((zone) => (
-              <li key={zone} className="demo__zone">
-                <p className="demo__zone-name">{zoneLabel(zone)}</p>
-                <ul className="demo__items" role="list">
-                  {ordered
-                    .filter((item) => item.zone === zone)
-                    .map((item) => (
-                      <li key={item.name} className="demo__item">
-                        {item.name}
-                      </li>
-                    ))}
-                </ul>
-              </li>
+          <motion.ul className="demo__list" layout>
+            {rows.map((item) => (
+              <motion.li
+                key={item.name}
+                className="demo__row"
+                layout
+                transition={{ layout: { duration: 0.6, ease: EASE } }}
+              >
+                <span className="demo__row-name">{item.name}</span>
+                <span className="demo__row-zone">{zoneLabel(item.zone)}</span>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
 
-          {/* Keyed so a beat change remounts it, which replays the entry animation:
-              without the key React swaps the text and the caption just blinks. */}
-          <p className="demo__caption" key={HERO_BEATS[shown]!.id}>
-            {HERO_BEATS[shown]!.caption}
-          </p>
+          <div className="demo__caption-slot">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.p
+                key={phase.id}
+                className="demo__caption"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: EASE }}
+              >
+                {phase.caption}
+              </motion.p>
+            </AnimatePresence>
+          </div>
         </div>
       </Reveal>
     </section>
@@ -152,19 +229,28 @@ function HowItWorks() {
         </h2>
       </Reveal>
 
-      <ol className="steps__list">
+      <motion.ol
+        className="steps__list"
+        initial="hidden"
+        whileInView="shown"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={{ shown: { transition: { staggerChildren: 0.12 } } }}
+      >
         {STEPS.map((step, index) => (
-          <li key={step.title} className="steps__item">
-            <Reveal>
-              <span className="steps__number" aria-hidden="true">
-                {index + 1}
-              </span>
-              <h3 className="steps__title">{step.title}</h3>
-              <p className="steps__body">{step.body}</p>
-            </Reveal>
-          </li>
+          <motion.li
+            key={step.title}
+            className="steps__item"
+            variants={{ hidden: { opacity: 0, y: 26 }, shown: { opacity: 1, y: 0 } }}
+            transition={{ duration: 0.6, ease: EASE }}
+          >
+            <span className="steps__number" aria-hidden="true">
+              {index + 1}
+            </span>
+            <h3 className="steps__title">{step.title}</h3>
+            <p className="steps__body">{step.body}</p>
+          </motion.li>
         ))}
-      </ol>
+      </motion.ol>
     </section>
   );
 }
@@ -202,15 +288,17 @@ function Support() {
           Sin anuncios, sin cuentas y sin vender nada de lo que haces con la app. Si te ahorra
           tiempo en la compra, puedes invitarme a un café.
         </p>
-        <a
+        <motion.a
           className="btn btn--primary"
           href={KOFI_URL}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Invítame a un café (se abre en una pestaña nueva)"
+          whileHover={{ y: -3 }}
+          whileTap={{ scale: 0.97 }}
         >
           Invítame a un café
-        </a>
+        </motion.a>
       </Reveal>
     </section>
   );
@@ -219,9 +307,7 @@ function Support() {
 function Foot() {
   return (
     <footer className="foot">
-      <p className="foot__note">
-        Por ahora, el único catálogo disponible es el de Mercadona.
-      </p>
+      <p className="foot__note">Por ahora, el único catálogo disponible es el de Mercadona.</p>
       <p className="foot__note">
         Carrito es un proyecto independiente y no está afiliado a Mercadona. El catálogo
         procede de fuentes públicas y los datos nutricionales, de Open Food Facts.
@@ -232,18 +318,20 @@ function Foot() {
 
 export function Landing() {
   return (
-    <div className="landing">
-      <a className="landing__skip" href="#contenido">
-        Saltar al contenido
-      </a>
-      <Bar />
-      <main id="contenido" className="landing__main">
-        <Hero />
-        <HowItWorks />
-        <Ordering />
-        <Support />
-      </main>
-      <Foot />
-    </div>
+    <MotionConfig reducedMotion="user">
+      <div className="landing">
+        <a className="landing__skip" href="#contenido">
+          Saltar al contenido
+        </a>
+        <Bar />
+        <main id="contenido" className="landing__main">
+          <Hero />
+          <HowItWorks />
+          <Ordering />
+          <Support />
+        </main>
+        <Foot />
+      </div>
+    </MotionConfig>
   );
 }

@@ -30,7 +30,7 @@ export const SECTION_ICON: Record<string, IconName> = {
   Bodega: 'wine',
   'Limpieza y hogar': 'spray',
   'Cuidado facial y corporal': 'soap',
-  'Cuidado del cabello': 'comb',
+  'Cuidado del cabello': 'scissors',
   Maquillaje: 'lipstick',
   Mascotas: 'paw',
   'Fitoterapia y parafarmacia': 'pharmacy',

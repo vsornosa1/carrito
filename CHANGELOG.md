@@ -5,6 +5,13 @@ Versionado [semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Añadido
+
+- **Carrito es gratis.** No hay pago, ni cuentas, ni anuncios: el apoyo es un enlace a Ko-fi. Con eso desaparecen el `offer` y el `entitlement` que se habían especificado, y el CSP no cambia — el widget de Ko-fi carga un script de terceros que `script-src 'self'` bloquea, así que el enlace es la única forma que conserva la promesa de que la app no contacta con nadie. Hay un test que lo comprueba.
+- **Página de presentación en `/`**, y la app se muda a `/app`. El service worker se registra solo desde `/app` y con ese ámbito, así que quien llega por un enlace comparte una página y no los 5,8 MB del catálogo: verificado en el navegador, `/` no registra ningún worker y no pide el catálogo. `public/_headers` no cambia.
+- **Un pictograma por sección** en la lista de categorías, que pasa de tarjetas en dos columnas a filas con su icono. El mapa es dato y se comprueba contra el catálogo real: una sección nueva sin icono falla en vez de heredar el de otra.
+- **El diálogo de confirmación** sustituye a `window.confirm` para vaciar la lista y restablecer el orden. La integración estaba a medias y dejaba la app sin compilar, sin `lint` y con 39 tests en rojo.
+
 ### Fixed
 
 - **Las alternativas recomendaban productos que la propia app marcaba como más procesados (85 casos).** El ranking no veía la clasificación que muestra la interfaz. Ahora `SwapSignals` incluye el `tier` compuesto, así que la recomendación y la etiqueta no pueden contradecirse.
@@ -14,6 +21,7 @@ Versionado [semántico](https://semver.org/lang/es/).
 
 ### Changed
 
+- **El producto pasa a llamarse Carrito**, y las claves de `localStorage` con él: `carrito.cart.v1` y `carrito.order.v1`. Las claves antiguas se siguen leyendo como respaldo, así que ninguna lista ni ningún orden guardado se pierde con el cambio de nombre. El nombre del supermercado no se toca en ningún sitio donde signifique el supermercado. Los ficheros de `tasks/archive/` no se reescriben: son el registro de lo que se planeó y se hizo entonces.
 - **El procesamiento manda sobre los macros.** Un producto con peor procesamiento nunca se recomienda; un macro puede intercambiarse por una mejora de procesamiento, y el coste se muestra con el mismo peso que el beneficio ("a cambio: más azúcar 12 g → 14 g").
 - **`Swap.product` es `EnrichedCatalogProduct`**, para que la interfaz pueda leer la clasificación del producto que recomienda.
 - `formatReason` y `formatNumber` se eliminan: el texto de los motivos vive en `benefits.ts` como única fuente, para que la etiqueta, los chips y el nombre accesible no se separen.

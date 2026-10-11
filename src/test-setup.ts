@@ -12,6 +12,27 @@ afterEach(() => {
 // trip over every time it moves focus to a new view.
 window.scrollTo = () => {};
 
+// jsdom implements no IntersectionObserver, and framer-motion's `whileInView` needs one
+// to decide when to reveal — without it every landing-page test throws before it can
+// assert anything.
+//
+// Like the dialog stub below, this makes the element observable and no more: the stub
+// never reports an intersection, so a reveal stays where it started. The animation is
+// verified in a real browser, not here.
+if (typeof globalThis.IntersectionObserver === 'undefined') {
+  globalThis.IntersectionObserver = class IntersectionObserverStub {
+    readonly root = null;
+    readonly rootMargin = '';
+    readonly thresholds: readonly number[] = [];
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords(): IntersectionObserverEntry[] {
+      return [];
+    }
+  } as unknown as typeof IntersectionObserver;
+}
+
 // jsdom implements the dialog *element* but not its modal methods, so a component
 // using <dialog> cannot open at all under test. This stub makes the element
 // visible; it deliberately does NOT imitate the behaviour that makes a native

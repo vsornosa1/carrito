@@ -25,16 +25,38 @@ export const HERO_ITEMS: readonly HeroItem[] = [
   { name: 'Garbanzos cocidos', zone: 'despensa' },
 ];
 
-/** The hero's beats, in order. Each caption is a claim the app can actually keep. */
+/**
+ * The hero's beats, in order.
+ *
+ * Each caption is a claim the app can actually keep — and deliberately not a *number*.
+ * The first draft read "4 aditivos" and "12 g menos de azúcar", which is exactly the
+ * kind of figure this app refuses to invent for a real product; on a marketing page it
+ * would be worse, not better. The demo is labelled an example for the same reason.
+ */
 export interface HeroBeat {
   id: 'see' | 'swap' | 'order';
+  /** Short status, shown on the card. */
+  badge: string;
+  /** The sentence under the demo. */
   caption: string;
 }
 
 export const HERO_BEATS: readonly HeroBeat[] = [
-  { id: 'see', caption: '4 aditivos · ultraprocesado' },
-  { id: 'swap', caption: 'Mejor del mismo pasillo: 12 g menos de azúcar' },
-  { id: 'order', caption: 'Congelados al final, para que no se derritan' },
+  {
+    id: 'see',
+    badge: 'Ultraprocesado',
+    caption: 'Muchos aditivos, y los puedes ver uno a uno',
+  },
+  {
+    id: 'swap',
+    badge: 'Mejor opción del pasillo',
+    caption: 'Te dice por qué es mejor, con los números delante',
+  },
+  {
+    id: 'order',
+    badge: 'En orden de recorrido',
+    caption: 'Congelados al final, para que no se derritan',
+  },
 ];
 
 export const HERO_BEAT_MS = 2800;

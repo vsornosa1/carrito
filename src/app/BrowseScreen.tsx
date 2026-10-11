@@ -161,6 +161,9 @@ function Frame({ children }: { children: ReactNode }) {
   return (
     <section aria-label="Categorías">
       <h1 className="screen-title">Categorías</h1>
+      {/* Said out loud rather than left to be inferred from the product names: there is
+          one catalogue today, and the app should not let anyone assume there are more. */}
+      <p className="screen-note">Por ahora, solo el catálogo de Mercadona.</p>
       {children}
     </section>
   );

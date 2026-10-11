@@ -180,13 +180,14 @@ const PATHS: Record<string, ReactElement> = {
       <path d="M13 6.5h4V9" />
     </>
   ),
-  comb: (
+  // Scissors, not a comb. A comb was the first try and its teeth averaged into a
+  // barcode at 20px: the shape has to survive the size, not just mean the right thing.
+  scissors: (
     <>
-      <rect x="3.5" y="9" width="17" height="4.5" rx="1.5" />
-      <line x1="7" y1="13.5" x2="7" y2="17.5" />
-      <line x1="11" y1="13.5" x2="11" y2="17.5" />
-      <line x1="15" y1="13.5" x2="15" y2="17.5" />
-      <line x1="18.5" y1="13.5" x2="18.5" y2="16.5" />
+      <circle cx="6" cy="6.5" r="2.6" />
+      <circle cx="6" cy="17.5" r="2.6" />
+      <path d="M8.3 8.2 20 18" />
+      <path d="M8.3 15.8 20 6" />
     </>
   ),
   lipstick: (
