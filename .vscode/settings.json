@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^if \\(git ls-files --error-unmatch tasks/plan\\.md 2>\\$null\\) \\{ git mv tasks/plan\\.md tasks/archive/trip-order-plan\\.md; Write-Host \"git mv exit=\\$LASTEXITCODE\" \\} else \\{ Move-Item tasks/plan\\.md tasks/archive/trip-order-plan\\.md; Write-Host \"Move-Item fallback\" \\}; Write-Host '--- tasks/ ---'; Get-ChildItem tasks -Force -Name; Write-Host '--- archive/ ---'; Get-ChildItem tasks/archive -Force -Name$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
