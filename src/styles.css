@@ -1002,6 +1002,24 @@ img {
   flex: 1;
 }
 
+/* The section list's skeleton. It borrows `.section-row` for its geometry so the two
+   cannot drift; these two classes only fill in what the row does not already say. */
+.section-row--skeleton {
+  pointer-events: none;
+}
+
+.skeleton__icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+}
+
+.skeleton__count {
+  flex: none;
+  width: 4.5rem;
+  height: 0.875rem;
+}
+
 /* ---- Product page ----
    The detail screen is a product page, not a document: imagery leads, the
    price is a headline, and the primary action stays reachable. */

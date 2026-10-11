@@ -6,6 +6,7 @@ import {
   SectionRail,
   ShelfList,
 } from '../components/CategoryBrowser.tsx';
+import { CatalogSkeleton } from '../components/CatalogSkeleton.tsx';
 import { ProductResults } from '../components/ProductResults.tsx';
 import { StateMessage } from '../components/StateMessage.tsx';
 import { SupportLink } from '../components/SupportLink.tsx';
@@ -56,7 +57,7 @@ export function BrowseScreen({ products, status, onSelectProduct }: BrowseScreen
   if (status === 'loading') {
     return (
       <Frame>
-        <StateMessage title="Cargando el catálogo" hint="Estamos preparando las secciones." />
+        <CatalogSkeleton />
       </Frame>
     );
   }
