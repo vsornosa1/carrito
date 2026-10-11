@@ -3,23 +3,23 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { CategorySection } from '../lib/category-tree.ts';
-import { SectionGrid, ShelfList } from './CategoryBrowser.tsx';
+import { SectionList, ShelfList } from './CategoryBrowser.tsx';
 
 const sections: CategorySection[] = [
   { id: 12, name: 'Aceite, especias y salsas', count: 139, shelves: [] },
   { id: 18, name: 'Agua y refrescos', count: 190, shelves: [] },
 ];
 
-describe('SectionGrid', () => {
+describe('SectionList', () => {
   it('shows one card per section, not every shelf — this is what replaces the wall of chips', () => {
-    render(<SectionGrid sections={sections} onSelect={vi.fn()} />);
+    render(<SectionList sections={sections} onSelect={vi.fn()} />);
     expect(screen.getByRole('button', { name: /Aceite, especias y salsas/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Agua y refrescos/ })).toBeInTheDocument();
     expect(screen.queryAllByRole('button')).toHaveLength(2);
   });
 
   it('shows how many products each section holds', () => {
-    render(<SectionGrid sections={sections} onSelect={vi.fn()} />);
+    render(<SectionList sections={sections} onSelect={vi.fn()} />);
     expect(screen.getByText('139 productos')).toBeInTheDocument();
     expect(screen.getByText('190 productos')).toBeInTheDocument();
   });
@@ -27,13 +27,13 @@ describe('SectionGrid', () => {
   it('reports the selected section', async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
-    render(<SectionGrid sections={sections} onSelect={onSelect} />);
+    render(<SectionList sections={sections} onSelect={onSelect} />);
     await user.click(screen.getByRole('button', { name: /Agua y refrescos/ }));
     expect(onSelect).toHaveBeenCalledWith(18);
   });
 
   it('shows an empty state rather than a blank area', () => {
-    render(<SectionGrid sections={[]} onSelect={vi.fn()} />);
+    render(<SectionList sections={[]} onSelect={vi.fn()} />);
     expect(screen.getByText(/No hay categorías/i)).toBeInTheDocument();
   });
 });

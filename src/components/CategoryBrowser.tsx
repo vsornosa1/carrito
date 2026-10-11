@@ -1,8 +1,10 @@
 import type { CategorySection } from '../lib/category-tree.ts';
 import { pluralise } from '../lib/plural.ts';
+import { sectionIcon } from '../lib/section-icons.ts';
 import { groupSectionsByZone } from '../lib/zones.ts';
+import { Icon } from './icons.tsx';
 
-export function SectionGrid({
+export function SectionList({
   sections,
   onSelect,
 }: {
@@ -18,12 +20,17 @@ export function SectionGrid({
   }
 
   return (
-    <ul className="section-grid" role="list">
+    <ul className="section-list" role="list">
       {sections.map((section) => (
         <li key={section.id}>
-          <button type="button" className="section-card" onClick={() => onSelect(section.id)}>
-            <span className="section-card__name">{section.name}</span>
-            <span className="section-card__count">{pluralise(section.count, 'producto', 'productos')}</span>
+          <button type="button" className="section-row" onClick={() => onSelect(section.id)}>
+            <span className="section-row__icon">
+              <Icon name={sectionIcon(section.name)} size={20} />
+            </span>
+            <span className="section-row__name">{section.name}</span>
+            <span className="section-row__count">
+              {pluralise(section.count, 'producto', 'productos')}
+            </span>
           </button>
         </li>
       ))}
@@ -48,7 +55,7 @@ export function SectionGridByZone({
 }) {
   const groups = groupSectionsByZone(sections);
 
-  if (groups.length === 0) return <SectionGrid sections={sections} onSelect={onSelect} />;
+  if (groups.length === 0) return <SectionList sections={sections} onSelect={onSelect} />;
 
   return (
     <>
@@ -61,7 +68,7 @@ export function SectionGridByZone({
           <h2 id={`zona-${group.zone.id}`} className="zone-group__title">
             {group.zone.label}
           </h2>
-          <SectionGrid sections={group.sections} onSelect={onSelect} />
+          <SectionList sections={group.sections} onSelect={onSelect} />
         </section>
       ))}
     </>
