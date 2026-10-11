@@ -1,16 +1,10 @@
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
-import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion';
+import { MotionConfig, motion, useReducedMotion } from 'framer-motion';
 
 import { CarritoMark } from '../components/CarritoMark.tsx';
-import {
-  HERO_BEATS,
-  HERO_BEAT_MS,
-  HERO_ITEMS,
-  nextBeat,
-  orderedItems,
-  zoneLabel,
-} from './hero-order.ts';
+import { pluralise } from '../lib/plural.ts';
+import { TRIP_WHY } from '../lib/zones.ts';
+import { heroGroups } from './hero-order.ts';
 
 const APP_URL = '/app/';
 const KOFI_URL = 'https://ko-fi.com/sornosa';
@@ -24,7 +18,8 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
  * `MotionConfig reducedMotion="user"` is the reason this page can be as animated as it
  * is: framer-motion disables transform and layout animations for readers who have asked
  * for less motion, so the page does not have to choose between standing out and being
- * usable. The hero additionally stops auto-playing entirely — see `Hero`.
+ * usable. The hero additionally plays no loop at all — its build is one pass, skipped
+ * outright under reduced motion. See `Hero`.
  */
 function Reveal({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -64,23 +59,11 @@ function Bar() {
 function Hero() {
   // Null on the server and in tests; treated as "no preference".
   const reduce = useReducedMotion() ?? false;
-  const [beat, setBeat] = useState(0);
 
-  useEffect(() => {
-    if (reduce) return;
-    const id = window.setInterval(() => setBeat(nextBeat), HERO_BEAT_MS);
-    return () => window.clearInterval(id);
-  }, [reduce]);
-
-  // Under reduced motion the hero does not play at all: it shows the last beat, which is
-  // the list already in trip order. A slower animation would still be an animation.
-  const shown = reduce ? HERO_BEATS.length - 1 : beat;
-  const phase = HERO_BEATS[shown]!;
-
-  // The reorder is the point. As they were added, the items are in no particular order;
-  // on the last beat they take their trip order, and framer's `layout` animates each row
-  // to its new place rather than cross-fading two lists.
-  const rows = phase.id === 'order' ? orderedItems() : [...HERO_ITEMS];
+  // Flat out of the groups rather than `HERO_ITEMS.length`, so the count on the card is
+  // the number of rows under it even if a zone ever drops one.
+  const groups = heroGroups();
+  const count = groups.flatMap((group) => group.items).length;
 
   return (
     <section className="hero" aria-labelledby="hero-title">
@@ -148,51 +131,60 @@ function Hero() {
         {/* Outside the aria-hidden demo, because it qualifies everything inside it. */}
         <p className="demo__tag">Ejemplo</p>
 
-        {/* Decorative: every claim it acts out is stated in the copy beside it. And the
-            numbers are gone — the app refuses to invent one, and so does its poster. */}
-        <div className={`demo demo--${phase.id}`} aria-hidden="true">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={phase.id}
-              className="demo__card"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.32, ease: EASE }}
-            >
-              <p className="demo__card-name">{HERO_ITEMS[0]!.name}</p>
-              <p className="demo__card-badge">{phase.badge}</p>
-            </motion.div>
-          </AnimatePresence>
+        {/* Decorative: every claim it acts out is stated in the copy beside it, and the
+            numbers are absent on purpose — the app refuses to invent one, and so does its
+            poster. One screen, read top to bottom: what the list is, where each thing sits
+            in the store, and the item the app has something to say about. */}
+        <div className="demo" aria-hidden="true">
+          <p className="demo__head">
+            <span className="demo__head-title">Tu compra</span>
+            <span className="demo__head-count">
+              {pluralise(count, 'producto', 'productos')}
+            </span>
+          </p>
 
-          <motion.ul className="demo__list" layout>
-            {rows.map((item) => (
+          {/* Each zone arrives after the one before it, which is the walk itself. One
+              pass, then still: nothing here changes while it is being read. */}
+          <motion.ul
+            className="demo__groups"
+            role="list"
+            initial={reduce ? false : 'hidden'}
+            animate="shown"
+            variants={{ shown: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } } }}
+          >
+            {groups.map((group) => (
               <motion.li
-                key={item.name}
-                className="demo__row"
-                layout
-                transition={{ layout: { duration: 0.6, ease: EASE } }}
+                key={group.label}
+                className="demo__group"
+                variants={{ hidden: { opacity: 0, y: 12 }, shown: { opacity: 1, y: 0 } }}
+                transition={{ duration: 0.45, ease: EASE }}
               >
-                <span className="demo__row-name">{item.name}</span>
-                <span className="demo__row-zone">{zoneLabel(item.zone)}</span>
+                <p className="demo__group-label">{group.label}</p>
+                <ul className="demo__rows" role="list">
+                  {group.items.map((item) => (
+                    <li
+                      key={item.name}
+                      className={item.flag === undefined ? 'demo__row' : 'demo__row demo__row--flag'}
+                    >
+                      <p className="demo__row-name">
+                        <span>{item.name}</span>
+                        {item.flag === undefined ? null : (
+                          <span className="demo__row-badge">{item.flag.badge}</span>
+                        )}
+                      </p>
+                      {item.flag === undefined ? null : (
+                        <p className="demo__row-better">{item.flag.better}</p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </motion.li>
             ))}
           </motion.ul>
 
-          <div className="demo__caption-slot">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.p
-                key={phase.id}
-                className="demo__caption"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3, ease: EASE }}
-              >
-                {phase.caption}
-              </motion.p>
-            </AnimatePresence>
-          </div>
+          {/* The app's own line for why the list ends where it does, imported rather
+              than retyped, so the poster cannot drift from what the app tells you. */}
+          <p className="demo__note">{TRIP_WHY}</p>
         </div>
       </Reveal>
     </section>

@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { Landing } from './Landing.tsx';
+import { HERO_ITEMS } from './hero-order.ts';
 
 describe('the landing page', () => {
   /*
@@ -51,6 +52,24 @@ describe('the landing page', () => {
     // Once. Asking for money twice on one page reads as a toll booth, and the person
     // reading the hero has not been given anything yet.
     expect(screen.getAllByRole('link', { name: /invítame a un café/i })).toHaveLength(1);
+  });
+
+  /*
+    The demo is `aria-hidden`, so no role-based query can see it — and the thing that must
+    not come back is exactly what it looked like: the same product named twice, once on a
+    card and once in the list, with a badge that contradicted itself from beat to beat.
+    Read on the DOM, once per product.
+  */
+  it('names each product in the demo exactly once', () => {
+    render(<Landing />);
+
+    const demo = document.querySelector('.hero__demo');
+    expect(demo, 'the hero must have its demo panel').not.toBeNull();
+
+    for (const item of HERO_ITEMS) {
+      const mentions = (demo!.textContent ?? '').split(item.name).length - 1;
+      expect(mentions, `${item.name} must be named once in the demo`).toBe(1);
+    }
   });
 
   it('says which catalogue it actually has, since there is only one', () => {

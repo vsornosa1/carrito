@@ -39,7 +39,6 @@
   --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
-  --radius: 14px;
   --display: clamp(2.75rem, 9vw, 5.25rem);
   --measure: 33rem;
   --gutter: clamp(1.25rem, 5vw, 3rem);
@@ -145,6 +144,12 @@ a {
 .landing {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+  /* The hero's wash is drawn wider than the content on purpose, and on a phone that
+     past-the-page part is a horizontal scrollbar with the hero cut off at the right
+     edge — inside which the demo panel no longer fits. `clip` removes the overflow
+     without making this a scroll container, so the sticky bar still sticks to the
+     viewport rather than to this box. */
+  overflow-x: clip;
 }
 
 /* ---- Layout ---- */
@@ -271,87 +276,127 @@ a {
   text-transform: uppercase;
 }
 
+/*
+  One screen of the app, at poster scale: a heading, the list grouped by where each
+  thing sits in the store, and the item the app has something to say about.
+*/
 .demo {
   display: grid;
-  gap: 0.75rem;
-  padding: 1.5rem 1.25rem 1.25rem;
-  border: 1px solid var(--line);
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--line) 55%, var(--ink));
   border-radius: 22px;
   background: var(--paper-card);
-  box-shadow: 0 18px 40px -28px rgba(20, 22, 26, 0.4);
+  box-shadow: var(--shadow-card);
 }
 
-.demo__card {
-  display: grid;
-  gap: 0.35rem;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper);
-}
-
-.demo__card-name {
+.demo__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin: 0;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.demo__head-title {
   font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.demo__head-count {
+  flex: none;
+  font-size: 0.75rem;
   font-weight: 700;
+  color: var(--ink-muted);
 }
 
-.demo__card-badge {
-  margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--accent-deep);
-}
-
-.demo__list {
+.demo__groups {
   list-style: none;
   display: grid;
-  gap: 0.4rem;
+  gap: 0.9rem;
   margin: 0;
   padding: 0;
 }
 
-/* Each row is its own layout box, which is what lets framer slide it to a new place
-   instead of re-rendering the list. */
+.demo__group {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* The zone's name, not its number: Mercadona publishes no planogram, so the poster
+   does not draw one either. */
+.demo__group-label {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.demo__rows {
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+}
+
 .demo__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.5rem 0.7rem;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.55rem 0.7rem;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--paper);
   font-size: 0.875rem;
 }
 
+/* The one item the app would say something about. Marked with the badge, not with
+   colour alone, so the mark survives being read by anyone. */
+.demo__row--flag {
+  border-color: color-mix(in srgb, var(--line) 40%, var(--accent-deep));
+  background: var(--paper-card);
+}
+
 .demo__row-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
   font-weight: 600;
 }
 
-.demo__row-zone {
+.demo__row-badge {
   flex: none;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--ink-muted);
-}
-
-/* Fixed height, so a longer caption cannot shove the panel around mid-animation.
-   Sized for two lines on a phone, which is where the longest caption lands. */
-.demo__caption-slot {
-  position: relative;
-  min-height: 3.5rem;
-  padding-top: 0.25rem;
-}
-
-.demo__caption {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent-tint);
   color: var(--accent-deep);
+  font-size: 0.6875rem;
+  font-weight: 800;
+}
+
+.demo__row-better {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--good);
+}
+
+/* The reason the list ends where it does. */
+.demo__note {
+  margin: 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--good);
 }
 
 /* ---- Sections ---- */
@@ -553,40 +598,6 @@ a:focus-visible,
 .stat__label {
   font-size: 0.8125rem;
   color: var(--ink-muted);
-}
-
-/* ---- The demo, with some weight to it ---- */
-/* It used to be grey cards on a grey panel, which is much of why the page read as
-   unfinished. The tone now follows the beat: a warm edge while it points at something
-   bad, a green one once it offers the better option. */
-.demo {
-  border-color: color-mix(in srgb, var(--line) 55%, var(--ink));
-  box-shadow: var(--shadow-card);
-}
-
-.demo__card {
-  border-left: 3px solid var(--accent);
-  background: var(--paper-card);
-}
-
-.demo--swap .demo__card,
-.demo--order .demo__card {
-  border-left-color: var(--good);
-}
-
-.demo__row {
-  background: var(--paper-card);
-  box-shadow: 0 1px 2px rgba(20, 22, 26, 0.04);
-}
-
-.demo__zone {
-  letter-spacing: 0.12em;
-  color: var(--ink);
-  opacity: 0.55;
-}
-
-.demo__caption {
-  font-size: 0.9375rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

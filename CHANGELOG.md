@@ -14,6 +14,7 @@ Versionado [semántico](https://semver.org/lang/es/).
 
 ### Fixed
 
+- **El héroe ya no arrastra la página de lado en el móvil.** El degradado decorativo del héroe se pinta a propósito más allá del contenido, y en una pantalla estrecha ese sobrante era desplazamiento horizontal con el panel de la derecha cortado por el borde. `overflow-x: clip` en el contenedor lo recorta sin convertirlo en un contenedor de scroll, así que la barra superior sigue pegada a la ventana. Comprobado a 320 px: `scrollWidth` = `clientWidth`, y la barra sigue en `top: 0` al desplazar.
 - **Las alternativas recomendaban productos que la propia app marcaba como más procesados (85 casos).** El ranking no veía la clasificación que muestra la interfaz. Ahora `SwapSignals` incluye el `tier` compuesto, así que la recomendación y la etiqueta no pueden contradecirse.
 - **Alternativas que existían y no se ofrecían (397 casos).** 216 no tenían forma de expresarse (ahora hay un motivo `tier`) y 181 los descartaba una regla de Pareto que escondía un intercambio real.
 - **`unknown` contaba como mejora.** Significa "no lo sabemos": ahora es neutral, ni mejor ni peor que una clasificación conocida.
@@ -21,6 +22,7 @@ Versionado [semántico](https://semver.org/lang/es/).
 
 ### Changed
 
+- **El lateral del héroe es una pantalla, no un carrusel.** La tarjeta cambiaba de etiqueta tres veces sobre el mismo producto —que además era uno de los de la lista de al lado—, así que entenderla exigía seguir el ciclo, y la etiqueta se contradecía entre pasos («Ultraprocesado» y «Mejor opción del pasillo» sobre la misma pizza). Ahora se lee de arriba abajo: la compra agrupada por zonas en orden de recorrido, el congelado marcado con la etiqueta de `tierLabel` —la de la app, no una copia— y la mejor opción del mismo pasillo debajo, y el motivo del orden al pie, que es `TRIP_WHY` importada. Se van el temporizador y el estado: la única animación es la entrada de las zonas, una pasada, y con `prefers-reduced-motion` el panel se pinta entero. Un test cuenta que cada producto aparece una sola vez en el panel, que es la parte que nadie entendía.
 - **El producto pasa a llamarse Carrito**, y las claves de `localStorage` con él: `carrito.cart.v1` y `carrito.order.v1`. Las claves antiguas se siguen leyendo como respaldo, así que ninguna lista ni ningún orden guardado se pierde con el cambio de nombre. El nombre del supermercado no se toca en ningún sitio donde signifique el supermercado. Los ficheros de `tasks/archive/` no se reescriben: son el registro de lo que se planeó y se hizo entonces.
 - **El procesamiento manda sobre los macros.** Un producto con peor procesamiento nunca se recomienda; un macro puede intercambiarse por una mejora de procesamiento, y el coste se muestra con el mismo peso que el beneficio ("a cambio: más azúcar 12 g → 14 g").
 - **`Swap.product` es `EnrichedCatalogProduct`**, para que la interfaz pueda leer la clasificación del producto que recomienda.

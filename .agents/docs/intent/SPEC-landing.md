@@ -79,7 +79,7 @@ people using the app, which is precisely who should pay for it.
 | `app/index.html` | The app entry, moved from the root |
 | `src/landing/main.tsx` | The landing's mount point — no worker, no catalogue |
 | `src/landing/Landing.tsx` | The page: hero, steps, ordering, support, footer. One file rather than `screens/*`, as built: the sections share the reveal wrapper and the copy, and splitting five small components would have cost more than it explained |
-| `src/landing/hero-order.ts` | The hero's list and beats, built on the app's own `ZONES` so the two cannot drift |
+| `src/landing/hero-order.ts` | The hero's list and its zone grouping, built on the app's own `ZONES` so the two cannot drift |
 | `src/landing/use-reveal.ts` | Scroll reveal, and the reduced-motion preference read via `useSyncExternalStore` |
 | `src/landing/landing.css` | The landing's own tokens; it must not import `src/styles.css` |
 | `vite.config.ts` | Two inputs, `appType: 'mpa'`, `injectRegister: null`. **`appType: 'mpa'` was added during the build**, after `vite preview` handed `/app` to the root document: without it the multi-page project still behaves like a single-page one and the visitor gets the landing page twice |
@@ -88,17 +88,28 @@ people using the app, which is precisely who should pay for it.
 ## The hero, concretely
 
 The app's differentiator is that **the list reads as a walk**: seven zones in trip
-order, non-food its own block, the freezer last. The hero animates exactly that — a
-short list of product chips reordering itself into the trip order, zone headings
-arriving as their items land, `Congelados` last.
+order, non-food its own block, the freezer last. The hero shows exactly that — the
+products under their zone headings, in trip order, `Congelados` last, with the reason
+the freezer comes last along the foot of the panel. One item carries what the app would
+say about it: its badge, and the better option in the same aisle.
 
 It is honest content rather than aspirational: that behaviour already ships and is
-covered by the app's own tests. The animation is a **timed state machine over a
-small list**, stepped by the same ordering functions the app uses where practical, so
-the hero cannot drift from the thing it advertises.
+covered by the app's own tests, and the grouping runs through the app's own `ZONES`
+rather than a copy, so the hero cannot drift from the thing it advertises. Nothing in
+the panel carries a *figure*, because the app refuses to invent one for a real product —
+`hero-order.test.ts` fails on a digit in the marked item's copy.
 
-Under `prefers-reduced-motion: reduce` the animation does not run: the final order is
-rendered immediately, static. Not a slower animation — no animation.
+*Amended 2026-10-11 (as built):* the first version was a timed state machine — a card
+whose badge changed across three beats, a list that reordered itself on the last one,
+and a caption below. Watching it was the only way to learn what it said, and the card
+named the same product the list did, so together they read as a contradiction rather
+than an explanation. The beats, the interval and the badge machine are gone: what
+remains is one screen, read top to bottom, whose only motion is the zones arriving in
+trip order — once, not in a loop. The mark on the item is the same badge the app shows
+(`tierLabel`), not a second wording of it.
+
+Under `prefers-reduced-motion: reduce` that one pass does not run either: the panel
+renders complete, immediately. Not a slower animation — no animation.
 
 ## Commands
 
@@ -187,8 +198,8 @@ Ko-fi.
  heavy to leave.
 2. `/app` is the app, installable, and its installed icon opens the app rather than
    the landing page.
-3. The hero shows the list reordering into trip order, and renders the final order
-   statically under reduced motion.
+3. The hero shows the list grouped by zone in trip order, the freezer last, and renders
+   complete under reduced motion.
 4. Contrast passes AA on the landing page, one `h1`, skip link present, keyboard
    order sensible, no horizontal overflow at 320 px.
 5. `public/_headers` is byte-identical to what it is today.
