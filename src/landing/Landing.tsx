@@ -321,7 +321,7 @@ function Roadmap() {
           Esto no está terminado, y se nota.
         </h2>
         <p className="roadmap__lead">
-          Enseño lo que falta en vez de esperar a que esté perfecto. Lo primero ya funciona
+          Te enseño lo que falta en vez de esperar a que esté perfecto. Lo primero ya funciona
           hoy; lo segundo es lo siguiente, sin prometer fechas.
         </p>
 
