@@ -40,6 +40,12 @@ export function App() {
   // assistive tech announces it instead of the DOM swapping silently. A search
   // deliberately does not count: the caret is in the field, and moving focus
   // would interrupt the typing that caused it.
+  //
+  // `preventScroll` on the focus is load-bearing, not tidiness. Focusing a large
+  // element scrolls it into view, so the two calls were fighting: the focus put
+  // `<main>`'s top at the viewport top, and the *sticky* app bar then sat over it —
+  // hiding the first ~110px of every product view, which is exactly where "← Volver"
+  // is. The page looked scrolled with no way back unless you scrolled up first.
   const mainRef = useRef<HTMLElement>(null);
   const firstRender = useRef(true);
   const viewKey = selected !== null ? `product:${selected.id}` : tab;
@@ -50,8 +56,46 @@ export function App() {
       return;
     }
     window.scrollTo({ top: 0 });
-    mainRef.current?.focus();
+    mainRef.current?.focus({ preventScroll: true });
   }, [viewKey]);
+
+  /*
+    The browser's back button has to mean what the app's back button means, or someone
+    who opens a product and swipes back lands somewhere they never were — the landing
+    page, or out of the app entirely.
+
+    One history entry per open product, and the URL is left alone on purpose: this is a
+    static host with no server to resolve `/app/producto/123`, so a deep link would 404
+    on refresh. The entry carries the product id in its state instead, which is enough
+    to make back and forward land on the right view.
+  */
+  const historyProduct = (): number | undefined =>
+    (window.history.state as { product?: number } | null)?.product;
+
+  useEffect(() => {
+    if (openProduct === null) return;
+    // Guarded because React runs effects twice in development: without this, one
+    // product would leave two entries behind and back would need pressing twice.
+    if (historyProduct() === openProduct.id) return;
+    window.history.pushState({ product: openProduct.id }, '');
+  }, [openProduct]);
+
+  useEffect(() => {
+    const onPop = (event: PopStateEvent) => {
+      const id = (event.state as { product?: number } | null)?.product;
+      setOpenProduct(id === undefined ? null : { id });
+    };
+
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  // Going through history when there is an entry to consume keeps the two in step:
+  // closing the view any other way would leave an entry behind that reopens nothing.
+  const closeProduct = () => {
+    if (historyProduct() === undefined) setOpenProduct(null);
+    else window.history.back();
+  };
 
   const openSwap = (swap: Swap, from: { id: number; name: string }) => {
     setOpenProduct({
@@ -82,7 +126,7 @@ export function App() {
         catalog={products}
         signals={signals}
         recommendation={openProduct?.recommendation}
-        onBack={() => setOpenProduct(null)}
+        onBack={closeProduct}
         onAdd={() => add(selected.id)}
         added={isInCart(cart, selected.id)}
         onSelectSwap={(swap) => openSwap(swap, { id: selected.id, name: selected.name })}

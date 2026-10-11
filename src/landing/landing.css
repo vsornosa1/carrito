@@ -194,19 +194,9 @@ a {
   color: #ffffff;
 }
 
-.btn--ghost {
-  border: 1px solid var(--ink);
-  color: var(--ink);
-}
-
 @media (hover: hover) {
   .btn--primary:hover {
     background: var(--ink);
-  }
-
-  .btn--ghost:hover {
-    background: var(--ink);
-    color: var(--paper);
   }
 
   .bar__cta:hover {
