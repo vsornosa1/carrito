@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { CartItemRow } from '../components/CartItemRow.tsx';
 import { CartSummary } from '../components/CartSummary.tsx';
 import { ConfirmDialog } from '../components/ConfirmDialog.tsx';
+import { JointSessionBar } from '../components/JointSessionBar.tsx';
 import { MoveControls } from '../components/MoveControls.tsx';
 import { OrderChip } from '../components/OrderChip.tsx';
 import { StateMessage } from '../components/StateMessage.tsx';
@@ -35,6 +36,22 @@ interface CartScreenProps {
   onRemove: (id: number) => void;
   onClear: () => void;
   onSetQuantity: (id: number, quantity: number) => void;
+  /**
+   * The shared-list bar, when this device is bound to one. `null` while solo.
+   *
+   * Optional so this screen's existing tests — which are about the list, not about
+   * sharing — keep working unchanged.
+   */
+  joint?: JointBar | null;
+}
+
+/** Everything the bar needs, handed down in one piece so the screen stays a screen. */
+interface JointBar {
+  sessionId: string;
+  notice: string | null;
+  manualLink: string | null;
+  onShare: () => void;
+  onUnbind: () => void;
 }
 
 interface Row {
@@ -69,6 +86,7 @@ export function CartScreen({
   onRemove,
   onClear,
   onSetQuantity,
+  joint = null,
 }: CartScreenProps) {
   const { blocks, zoneIds } = useMemo(
     () => buildBlocks(cart, products, order),
@@ -99,10 +117,25 @@ export function CartScreen({
   };
   const question = asking === null ? null : questions[asking];
 
+  // Rendered in both branches, and that is deliberate: an empty shared list still has to
+  // be shareable and leavable, or being bound with nothing in the cart would be a state
+  // with no way out.
+  const bar =
+    joint === null ? null : (
+      <JointSessionBar
+        sessionId={joint.sessionId}
+        notice={joint.notice}
+        manualLink={joint.manualLink}
+        onShare={joint.onShare}
+        onUnbind={joint.onUnbind}
+      />
+    );
+
   if (cart.items.length === 0) {
     return (
       <section aria-label="Carrito">
         <h1 className="screen-title">Carrito</h1>
+        {bar}
         <StateMessage
           icon="cart"
           title="El carrito está vacío"
@@ -115,6 +148,8 @@ export function CartScreen({
   return (
     <section aria-label="Carrito">
       <h1 className="screen-title">Carrito</h1>
+
+      {bar}
 
       <div className="cart-layout">
         <div className="cart-layout__list">

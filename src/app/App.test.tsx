@@ -305,3 +305,241 @@ describe('App — a product', () => {
     expect(screen.getAllByRole('button', { name: /Carrito/ })).toHaveLength(1);
   });
 });
+
+/*
+  Joint lists, at the level where they are wired together.
+
+  The pure rules and the bar have their own tests; what is exercised here is the seam —
+  that an arriving link asks before it changes anything, that sharing builds a real link
+  from the list on screen, and that leaving leaves nothing behind.
+
+  Everything is seeded *before* the render, because the cart and the binding are read
+  once at mount; seeding afterwards would test a state the app never has.
+*/
+describe('App — a shared list', () => {
+  const sid = 'A7fK2qAAAAAAAAAAAAAAAA';
+  const otherSid = 'BBBBBBBBBBBBBBBBBBBBBB';
+
+  function bindTo(sessionId: string) {
+    window.localStorage.setItem(
+      'carrito.joint.v1',
+      JSON.stringify({ sessionId, joinedAt: '2026-10-12T10:00:00.000Z', origin: 'joined' }),
+    );
+  }
+
+  function seedCart(ids: number[], quantity = 1) {
+    window.localStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify({
+        items: ids.map((id) => ({
+          productId: id,
+          addedAt: '2026-10-12T10:00:00.000Z',
+          checked: false,
+          quantity,
+        })),
+        updatedAt: '2026-10-12T10:00:00.000Z',
+      }),
+    );
+  }
+
+  /** A link that has arrived, as the browser would present it. */
+  function arriveWith(sessionId: string, items: string) {
+    window.history.replaceState(null, '', `/app/#j=1.${sessionId}.${items}`);
+  }
+
+  /**
+   * jsdom's `navigator` carries its members on the prototype, so spreading it yields
+   * nothing. Defining the property directly is the only way to give the app an API the
+   * browser would normally provide.
+   */
+  function stubPlatform(platform: { share?: unknown; clipboard?: unknown }) {
+    Object.defineProperty(window.navigator, 'share', {
+      value: platform.share,
+      configurable: true,
+    });
+    Object.defineProperty(window.navigator, 'clipboard', {
+      value: platform.clipboard,
+      configurable: true,
+    });
+  }
+
+  afterEach(() => {
+    Reflect.deleteProperty(window.navigator, 'share');
+    Reflect.deleteProperty(window.navigator, 'clipboard');
+  });
+
+  /**
+   * Renders, then hands the app a platform.
+   *
+   * The order matters and is not obvious: `userEvent.setup()` installs a clipboard of
+   * its own, so stubbing `navigator` before the harness would be overwritten and the app
+   * would find a clipboard no test provided. The app reads `navigator` at the moment of
+   * the tap, so stubbing after the render is what the test actually needs.
+   */
+  function renderAppWithPlatform(platform: { share?: unknown; clipboard?: unknown }) {
+    const user = renderApp();
+    stubPlatform(platform);
+    return user;
+  }
+
+  async function openCart(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(screen.getByRole('button', { name: /Carrito/ }));
+  }
+
+  it('shows no shared-list bar at all while this device is solo', async () => {
+    const user = renderApp();
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+    await openCart(user);
+
+    expect(screen.queryByRole('region', { name: 'Lista compartida' })).not.toBeInTheDocument();
+  });
+
+  it('shows the bar when bound, even with an empty list, so leaving stays reachable', async () => {
+    bindTo(sid);
+    const user = renderApp();
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+    await openCart(user);
+
+    expect(screen.getByRole('region', { name: 'Lista compartida' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Desvincularme' })).toBeInTheDocument();
+  });
+
+  it('asks before applying a link, and names both consequences before the tap', async () => {
+    arriveWith(sid, '2');
+    renderApp();
+
+    const dialog = await screen.findByRole('dialog', { name: '¿Unir esta lista con la tuya?' });
+    expect(dialog).toHaveTextContent(/no puede destachar/i);
+    expect(dialog).toHaveTextContent(/descarta la tuya/i);
+    expect(screen.getByRole('button', { name: 'Fusionar' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reemplazar' })).toBeInTheDocument();
+  });
+
+  it('adds the arriving list to the cart when the answer is to merge', async () => {
+    seedCart([1]);
+    arriveWith(sid, '2');
+    const user = renderApp();
+    await screen.findByRole('dialog', { name: '¿Unir esta lista con la tuya?' });
+
+    await user.click(screen.getByRole('button', { name: 'Fusionar' }));
+    await openCart(user);
+
+    expect(screen.getByText('Plátano de Canarias IGP')).toBeInTheDocument();
+    expect(screen.getByText('Leche entera')).toBeInTheDocument();
+  });
+
+  it('leaves the cart alone when the offer is cancelled', async () => {
+    seedCart([1]);
+    arriveWith(sid, '2');
+    const user = renderApp();
+    await screen.findByRole('dialog', { name: '¿Unir esta lista con la tuya?' });
+
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+    await openCart(user);
+
+    expect(screen.getByText('Plátano de Canarias IGP')).toBeInTheDocument();
+    expect(screen.queryByText('Leche entera')).not.toBeInTheDocument();
+  });
+
+  it('refuses a link for a different list, and says why instead of switching', async () => {
+    bindTo(otherSid);
+    seedCart([1]);
+    arriveWith(sid, '2');
+    const user = renderApp();
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+
+    expect(screen.getByRole('status')).toHaveTextContent(/ya estás en otra lista compartida/i);
+    expect(screen.queryByRole('dialog', { name: '¿Unir esta lista con la tuya?' })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Descartar' }));
+    await openCart(user);
+
+    expect(screen.getByText('Plátano de Canarias IGP')).toBeInTheDocument();
+    expect(screen.queryByText('Leche entera')).not.toBeInTheDocument();
+  });
+
+  it('sends a real link built from the list on screen when sharing', async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    bindTo(sid);
+    seedCart([1, 2]);
+    const user = renderAppWithPlatform({ share });
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+    await openCart(user);
+
+    await user.click(screen.getByRole('button', { name: 'Compartir' }));
+
+    expect(share).toHaveBeenCalledTimes(1);
+    expect(share.mock.calls[0]?.[0]).toMatchObject({
+      url: expect.stringContaining(`/app/#j=1.${sid}.1,2`) as unknown as string,
+    });
+    expect(screen.getByRole('status')).toHaveTextContent(/enviado/i);
+  });
+
+  it('shows the link in a field when the platform can neither share nor copy', async () => {
+    bindTo(sid);
+    seedCart([1]);
+    const user = renderAppWithPlatform({});
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+    await openCart(user);
+
+    await user.click(screen.getByRole('button', { name: 'Compartir' }));
+
+    // `findBy`, because handing the link over is asynchronous: the platform APIs are
+    // promises, so the field appears a microtask after the tap.
+    const field = await screen.findByRole('textbox', { name: 'Enlace para compartir' });
+    expect((field as HTMLInputElement).value).toContain(`/app/#j=1.${sid}.1`);
+    expect(screen.getByRole('status')).toHaveTextContent(/copia el enlace/i);
+  });
+
+  // 400 lines, not 1,100: long ids and a quantity make the payload exceed the cap with a
+  // list small enough to render quickly. The first version of this test rendered 1,100
+  // rows and timed out at 5s under coverage instrumentation — a slow test, not a slow app.
+  it(
+    'refuses to produce a link at all when the list is too long to share',
+    async () => {
+      const share = vi.fn().mockResolvedValue(undefined);
+      bindTo(sid);
+      seedCart(
+        Array.from({ length: 400 }, (_, index) => 1000000000000000 + index),
+        99,
+      );
+      const user = renderAppWithPlatform({ share });
+      await screen.findByRole('button', { name: /Fruta y verdura/ });
+      await openCart(user);
+
+      await user.click(screen.getByRole('button', { name: 'Compartir' }));
+
+      expect(share).not.toHaveBeenCalled();
+      expect(screen.getByRole('status')).toHaveTextContent(/demasiado larga para compartirse/i);
+    },
+    30_000,
+  );
+
+  it('keeps the list and drops the binding when leaving that way', async () => {
+    bindTo(sid);
+    seedCart([1]);
+    const user = renderApp();
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+    await openCart(user);
+
+    await user.click(screen.getByRole('button', { name: 'Desvincularme' }));
+    await user.click(screen.getByRole('button', { name: 'Quedarme con la lista' }));
+
+    expect(screen.queryByRole('region', { name: 'Lista compartida' })).toBeNull();
+    expect(screen.getByText('Plátano de Canarias IGP')).toBeInTheDocument();
+  });
+
+  it('empties the list and drops the binding when leaving that way', async () => {
+    bindTo(sid);
+    seedCart([1]);
+    const user = renderApp();
+    await screen.findByRole('button', { name: /Fruta y verdura/ });
+    await openCart(user);
+
+    await user.click(screen.getByRole('button', { name: 'Desvincularme' }));
+    await user.click(screen.getByRole('button', { name: 'Empezar de cero' }));
+
+    expect(screen.queryByRole('region', { name: 'Lista compartida' })).toBeNull();
+    expect(screen.getByText('El carrito está vacío')).toBeInTheDocument();
+  });
+});

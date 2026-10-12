@@ -2,9 +2,13 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { AppHeader } from '../components/AppHeader.tsx';
 import { BottomNav } from '../components/BottomNav.tsx';
+import { ConfirmDialog } from '../components/ConfirmDialog.tsx';
 import type { TabId } from '../components/nav-tabs.tsx';
 import { cartTotal, isInCart } from '../lib/cart.ts';
+import { encodeSharePayload, shareUrl } from '../lib/joint-session.ts';
+import { shareLink } from '../lib/share.ts';
 import { buildSwapSignals } from '../lib/swaps.ts';
+import type { BindChoice, UnbindChoice } from '../types/joint-session.ts';
 import type { Swap } from '../types/swaps.ts';
 import { BrowseScreen } from './BrowseScreen.tsx';
 import { CartScreen } from './CartScreen.tsx';
@@ -12,6 +16,7 @@ import { ProductScreen, type RecommendationContext } from './ProductScreen.tsx';
 import { SearchResults } from './SearchResults.tsx';
 import { useCart } from './useCart.ts';
 import { useCatalog } from './useCatalog.ts';
+import { useJointSession } from './useJointSession.ts';
 import { useIsDesktop } from './useMediaQuery.ts';
 import { useOrder } from './useOrder.ts';
 
@@ -20,11 +25,32 @@ interface OpenProduct {
   recommendation?: RecommendationContext;
 }
 
+const BIND_LABELS: Record<BindChoice, string> = { merge: 'Fusionar', replace: 'Reemplazar' };
+
+/**
+ * Both consequences, before the tap.
+ *
+ * A merge cannot uncheck — that is a property of the rule, not a bug to discover — and a
+ * replace throws away the list that is on screen. Naming both is the difference between
+ * a question and a guess.
+ */
+const BIND_MESSAGE =
+  'Fusionar une las dos listas, y no puede destachar lo que ya esté tachado. ' +
+  'Reemplazar deja la lista del enlace y descarta la tuya.';
+
 export function App() {
   const { products, status } = useCatalog();
-  const { cart, add, remove, toggle, clear, quantity } = useCart();
+  const { cart, add, remove, toggle, clear, quantity, replace } = useCart();
   const { order, change: changeOrder } = useOrder();
   const isDesktop = useIsDesktop();
+
+  const joint = useJointSession({ cart, onCartReplaced: replace });
+
+  // What the bar has to say, and the link itself when the app had to show it rather than
+  // send it. Both live here because both are consequences of an action taken here.
+  const [notice, setNotice] = useState<string | null>(null);
+  const [manualLink, setManualLink] = useState<string | null>(null);
+  const [leaving, setLeaving] = useState(false);
 
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<TabId>('browse');
@@ -35,6 +61,56 @@ export function App() {
     openProduct === null ? null : (products.find((p) => p.id === openProduct.id) ?? null);
   const totals = useMemo(() => cartTotal(cart, products), [cart, products]);
   const term = query.trim();
+
+  // A link for a list this device is not in. Refused rather than switched to: joining it
+  // would silently abandon the list this device is already part of, and losing a list
+  // without being asked is the one thing the cart has never done.
+  const foreignOffer =
+    joint.pending !== null &&
+    joint.binding !== null &&
+    joint.pending.sessionId !== joint.binding.sessionId;
+
+  // The remembered answer becomes the primary button; both answers are always on screen.
+  // Pre-answering is not the same as auto-applying, and a question the user set a default
+  // for last month must still be a question.
+  const preferred: BindChoice = joint.remembered ?? 'merge';
+  const other: BindChoice = preferred === 'merge' ? 'replace' : 'merge';
+
+  const share = () => {
+    const sessionId = joint.ensureSession();
+    const payload = encodeSharePayload(sessionId, cart);
+
+    // Refused rather than truncated: a link that only sometimes opens is worse than being
+    // told the list is too long to send.
+    if (payload === null) {
+      setManualLink(null);
+      setNotice(
+        'Esta lista es demasiado larga para compartirse por enlace. Quita algún producto y vuelve a intentarlo.',
+      );
+      return;
+    }
+
+    const link = shareUrl(payload, window.location.origin);
+    void shareLink(link, window.navigator).then((outcome) => {
+      setManualLink(outcome === 'manual' ? link : null);
+      setNotice(
+        outcome === 'shared'
+          ? 'Enlace enviado.'
+          : outcome === 'copied'
+            ? 'Enlace copiado.'
+            : outcome === 'manual'
+              ? 'Copia el enlace y envíalo.'
+              : null,
+      );
+    });
+  };
+
+  const leave = (choice: UnbindChoice) => {
+    joint.unbind(choice);
+    setLeaving(false);
+    setNotice(null);
+    setManualLink(null);
+  };
 
   // On every *place* change, start at the top and move focus into the content so
   // assistive tech announces it instead of the DOM swapping silently. A search
@@ -175,6 +251,17 @@ export function App() {
         onRemove={remove}
         onClear={clear}
         onSetQuantity={quantity}
+        joint={
+          joint.binding === null
+            ? null
+            : {
+                sessionId: joint.binding.sessionId,
+                notice,
+                manualLink,
+                onShare: share,
+                onUnbind: () => setLeaving(true),
+              }
+        }
       />
     );
   } else {
@@ -201,6 +288,37 @@ export function App() {
       <main className="app-main" ref={mainRef} tabIndex={-1}>
         {content}
       </main>
+
+      {foreignOffer ? (
+        <div className="joint-notice" role="status">
+          <p>Ya estás en otra lista compartida. Desvincúlate de ella para unirte a esta.</p>
+          <button type="button" className="joint-notice__dismiss" onClick={() => joint.dismiss()}>
+            Descartar
+          </button>
+        </div>
+      ) : null}
+
+      <ConfirmDialog
+        open={joint.pending !== null && !foreignOffer}
+        title="¿Unir esta lista con la tuya?"
+        message={BIND_MESSAGE}
+        confirmLabel={BIND_LABELS[preferred]}
+        alternateLabel={BIND_LABELS[other]}
+        onConfirm={() => joint.resolve(preferred)}
+        onAlternate={() => joint.resolve(other)}
+        onCancel={() => joint.dismiss()}
+      />
+
+      <ConfirmDialog
+        open={leaving}
+        title="¿Desvincular de la lista compartida?"
+        message="Esta lista dejará de ser compartida. Puedes quedarte con lo que hay en ella o empezar de cero."
+        confirmLabel="Quedarme con la lista"
+        alternateLabel="Empezar de cero"
+        onConfirm={() => leave('keep')}
+        onAlternate={() => leave('clear')}
+        onCancel={() => setLeaving(false)}
+      />
 
       {/* The tabs stay put, product open or not. They used to be hidden for a pushed
           view and replaced by a button in the app bar; the bar now carries nothing but

@@ -1803,3 +1803,114 @@ img {
   }
 }
 
+/* The shared-list bar. Tinted rather than bordered-and-white, because it is a state the
+   whole list is in, not one more row of it. */
+.joint-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+  background: var(--color-primary-tint);
+  border-radius: var(--radius-lg);
+}
+
+.joint-bar__what {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+
+.joint-bar__id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 400;
+  color: var(--color-primary-strong);
+}
+
+/* The line that stops "compartida" from being read as "synced". Secondary, but never
+   hidden: it is the difference between the app working and the app lying. */
+.joint-bar__how {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.joint-bar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.joint-bar__share,
+.joint-bar__leave {
+  min-height: 2.75rem; /* the same 44px floor the rest of the app uses */
+  padding: 0 var(--space-4);
+  font-size: var(--text-base);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.joint-bar__share {
+  background: var(--color-primary-strong);
+  color: #ffffff;
+  border: 1px solid var(--color-primary-strong);
+  font-weight: 700;
+}
+
+.joint-bar__leave {
+  background: none;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.joint-bar__link {
+  width: 100%;
+  padding: var(--space-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-xs);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.joint-bar__notice {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-primary-strong);
+}
+
+/* The refusal. A banner rather than a dialog, so it can be read and dismissed from
+   wherever the app happens to be when the link arrives. */
+.joint-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-warning-tint);
+  color: var(--color-warning);
+  font-size: var(--text-sm);
+}
+
+.joint-notice p {
+  margin: 0;
+  flex: 1;
+}
+
+.joint-notice__dismiss {
+  min-height: 2.75rem;
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-warning);
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .joint-bar__share:hover {
+    background: var(--color-primary-deep);
+  }
+}
+
