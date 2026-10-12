@@ -31,6 +31,11 @@ describe('network hygiene', () => {
   });
 });
 
+/** Source with comments removed, so a guard cannot fail on a sentence about a call. */
+function stripComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+}
+
 /** Every .ts/.tsx under a directory, recursively. */
 function sourceFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
@@ -81,6 +86,51 @@ describe('third-party isolation', () => {
     );
     expect(support, 'the Ko-fi page must be a plain link').toContain(
       'https://ko-fi.com/sornosa',
+    );
+  });
+});
+
+// A shared list promises the same thing the rest of the app does: nothing leaves the
+// device unless the user sends it themselves. The link is built locally and carried in a
+// fragment, so a request added to this path later — a "sync", a relay, an analytics ping
+// carrying the session — would break that promise silently. This asserts the absence
+// rather than trusting the design note in the spec.
+describe('the sharing path', () => {
+  const sharingSources = [
+    resolve(projectRoot, 'src', 'lib', 'joint-session.ts'),
+    resolve(projectRoot, 'src', 'lib', 'share.ts'),
+    resolve(projectRoot, 'src', 'app', 'useJointSession.ts'),
+  ];
+
+  it('has the files it claims to guard', () => {
+    for (const file of sharingSources) {
+      expect(existsSync(file), `${file} must exist`).toBe(true);
+    }
+  });
+
+  it('cannot transmit, because it has no way to make a request', () => {
+    for (const file of sharingSources) {
+      // Comments removed first: a guard that cannot tell a call from a sentence about
+      // calling would fail on its own documentation, which is how a guard gets deleted.
+      const source = stripComments(readFileSync(file, 'utf8'));
+      expect(source, `${file} must not fetch`).not.toMatch(/\bfetch\s*\(/);
+      expect(source, `${file} must not use XMLHttpRequest`).not.toContain('XMLHttpRequest');
+      expect(source, `${file} must not use sendBeacon`).not.toContain('sendBeacon');
+      expect(source, `${file} must not open a socket`).not.toMatch(/new\s+WebSocket/);
+    }
+  });
+
+  it('builds the link as a fragment, never as a query string', () => {
+    const source = readFileSync(
+      resolve(projectRoot, 'src', 'lib', 'joint-session.ts'),
+      'utf8',
+    );
+
+    // A fragment is not sent in a request line, a `Referer`, or an origin's logs, which is
+    // the entire reason the format is what it is.
+    expect(source, 'the link must put the payload in the fragment').toContain('/app/#');
+    expect(source, 'the link must never carry the payload in a query string').not.toMatch(
+      /\?j=/,
     );
   });
 });

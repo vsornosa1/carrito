@@ -49,6 +49,7 @@ curl -I https://carrito.dev/app/    # 200, y es la app, no la presentación
   - el **texto de ingredientes** detrás de cada afirmación.
 - **Sugiere alternativas mejores** del mismo pasillo, con el motivo en números (más proteína, menos azúcar, menos aditivos…).
 - **Lista de la compra** persistente, para ir tachando con un toque.
+- **Comparte la lista con la familia**, y desvincúlate cuando quieras. El carrito viaja **dentro del enlace** (`/app/#j=…`), no por un servidor: lo que cambies llega a los demás solo cuando vuelvas a enviar el enlace. Nadie más aparece en la lista, y un enlace ya enviado no se puede revocar.
 
 ## Requisitos
 
@@ -109,6 +110,7 @@ npm run lint           # eslint --max-warnings 0
 ## Decisiones clave
 
 - **Sin servidor.** Todo se resuelve en tiempo de construcción; la app es un conjunto de archivos estáticos.
+- **Compartir no es sincronizar.** Una lista compartida viaja dentro de un enlace, no por un servidor: sin cuentas, sin saber quién más está en la lista, y sin poder revocar un enlace ya enviado. El precio de no tener backend se dice en voz alta, en la propia barra de la lista. Consulta `.agents/docs/intent/SPEC-joint-session.md`.
 - **`unknown` es una respuesta válida.** Sin lista de ingredientes no es "sin aditivos"; sin macronutriente no es cero. Nunca se estima ni se inventa un número.
 - **La etiqueta dice lo que se ha medido.** El vocabulario de NOVA se usa solo cuando NOVA ha producido la clasificación; si sale de nuestra heurística de ingredientes, la etiqueta describe los aditivos ("sin aditivos", "con aditivos", "muchos aditivos"), y para los frescos dice "fresco". Nunca se presenta una heurística como NOVA.
 - **Se recomienda sobre la misma señal que se muestra.** El ranking usa la clasificación compuesta que ve el usuario, así que la app no puede proponer un producto que su propia ficha marca como más procesado.

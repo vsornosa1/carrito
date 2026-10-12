@@ -43,7 +43,7 @@ interface Cart {
   each, and a stored quantity that could not have come from the app (zero,
   negative, fractional, a string) is treated the same way. Bumping the version
   would have thrown away a list the user had already built.
-- One user, one device. No accounts, no sync, no server. Nothing about the cart is transmitted anywhere.
+- One user, one device. No accounts, no sync, no server. Nothing about the cart is transmitted anywhere — including when it is **shared**: a shared list is a cart the user moves between devices by hand, inside a link fragment, and it still has no account, no roll call and no revocation. That lives in [`joint-session`](./SPEC-joint-session.md); the shape above is unchanged by it.
 
 ## Behaviour
 

@@ -33,6 +33,7 @@ and how to roll back.
 | Input validation | search input is normalised and used only as a string comparison — no injection path, no server |
 | CORS | N/A — the app makes no cross-origin requests. Images load from a third-party CDN (no credentials, no data sent) |
 | Auth / authz / rate limiting | **N/A — by design.** No accounts, no login, no server, no user data leaves the device. The cart lives in `localStorage` |
+| Shared lists | A list can be *shared*, and that does not change the row above. There is still no server and no account: a device is bound to a session id, and the list travels **inside a link fragment** (`/app/#j=…`), which is not sent in a request line, a `Referer`, or an origin's log. The list leaves the device only when the user sends the link themselves — and then it is out of the app's hands: no roll call, no revocation. `tests/network-hygiene.test.ts` asserts the sharing path cannot make a request |
 | CSP verified | built `dist/index.html` contains **no inline scripts or styles**; all assets are same-origin. `_headers` is inert on hosts that ignore it |
 
 **Privacy note:** because there is no backend, no personal data is transmitted anywhere.
