@@ -34,5 +34,10 @@ export function useCart() {
     [],
   );
 
-  return { cart, add, remove, toggle, clear, quantity };
+  // Wholesale replacement, for the one caller that has a whole list rather than an edit:
+  // a shared list arriving, or being left. Every other mutation stays a small function,
+  // so a caller cannot accidentally hand over a cart it built by hand.
+  const replace = useCallback((next: Cart) => setCart(next), []);
+
+  return { cart, add, remove, toggle, clear, quantity, replace };
 }

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -93,6 +93,91 @@ describe('ConfirmDialog', () => {
     const ids = [...document.querySelectorAll('dialog h2')].map((h) => h.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(screen.getByRole('dialog', { name: '¿Vaciar el carrito?' })).toBeInTheDocument();
+  });
+});
+
+describe('ConfirmDialog — a question with two real answers', () => {
+  function renderThreeWay() {
+    const onConfirm = vi.fn();
+    const onAlternate = vi.fn();
+    const onCancel = vi.fn();
+    render(
+      <ConfirmDialog
+        open
+        title="¿Unir esta lista con la tuya?"
+        message="Fusionar no puede destachar: lo que ya esté tachado seguirá tachado."
+        confirmLabel="Fusionar"
+        alternateLabel="Reemplazar"
+        onConfirm={onConfirm}
+        onAlternate={onAlternate}
+        onCancel={onCancel}
+      />,
+    );
+    return { onConfirm, onAlternate, onCancel };
+  }
+
+  it('offers both answers, in the order safe, alternate, primary', () => {
+    renderThreeWay();
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+      'Cancelar',
+      'Reemplazar',
+      'Fusionar',
+    ]);
+  });
+
+  it('still starts on the safe choice, so a stray Enter destroys nothing', () => {
+    renderThreeWay();
+
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toHaveFocus();
+  });
+
+  it('reports the alternate answer, and nothing else', async () => {
+    const user = userEvent.setup();
+    const { onConfirm, onAlternate, onCancel } = renderThreeWay();
+
+    await user.click(screen.getByRole('button', { name: 'Reemplazar' }));
+
+    expect(onAlternate).toHaveBeenCalledTimes(1);
+    expect(onConfirm).not.toHaveBeenCalled();
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  it('reports the primary answer, and nothing else', async () => {
+    const user = userEvent.setup();
+    const { onConfirm, onAlternate, onCancel } = renderThreeWay();
+
+    await user.click(screen.getByRole('button', { name: 'Fusionar' }));
+
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(onAlternate).not.toHaveBeenCalled();
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  it('cancels when the dialog reports a cancel request, which is how Esc arrives', () => {
+    const { onConfirm, onAlternate, onCancel } = renderThreeWay();
+
+    // jsdom does not turn Escape into a `cancel` event, which is why the existing suite
+    // has no Esc test. Dispatching the request directly tests *this* component's handler
+    // — the browser's key handling is the native `<dialog>`'s job, and is the reason the
+    // element is used at all.
+    fireEvent(
+      screen.getByRole('dialog', { name: '¿Unir esta lista con la tuya?' }),
+      new Event('cancel', { cancelable: true }),
+    );
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onConfirm).not.toHaveBeenCalled();
+    expect(onAlternate).not.toHaveBeenCalled();
+  });
+
+  it('renders only two actions when there is no alternate, so existing call sites are untouched', () => {
+    renderDialog();
+
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+      'Cancelar',
+      'Vaciar',
+    ]);
   });
 });
 

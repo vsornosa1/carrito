@@ -9,6 +9,16 @@ interface ConfirmDialogProps {
   confirmLabel: string;
   onConfirm: () => void;
   onCancel: () => void;
+  /**
+   * A second real answer, for a question that has two.
+   *
+   * Optional on purpose: every existing call site asks a yes-or-no question and renders
+   * exactly as it did before. It sits between Cancelar and the primary action, and it
+   * deliberately does *not* take the focus — the safe choice keeps that, so a stray
+   * Return still cannot pick an answer nobody read.
+   */
+  alternateLabel?: string;
+  onAlternate?: () => void;
 }
 
 /**
@@ -31,6 +41,8 @@ export function ConfirmDialog({
   confirmLabel,
   onConfirm,
   onCancel,
+  alternateLabel,
+  onAlternate,
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -73,6 +85,11 @@ export function ConfirmDialog({
         <button type="button" ref={cancelRef} className="confirm__cancel" onClick={onCancel}>
           Cancelar
         </button>
+        {alternateLabel === undefined ? null : (
+          <button type="button" className="confirm__alternate" onClick={onAlternate}>
+            {alternateLabel}
+          </button>
+        )}
         <button type="button" className="confirm__confirm" onClick={onConfirm}>
           {confirmLabel}
         </button>
