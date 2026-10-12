@@ -1,139 +1,166 @@
-# Implementation Plan: licensing envelope
+# Implementation Plan: joint lists
 
 ## Overview
 
-Draw the boundary the premium feature has to live inside. Before anything is
-charged for, establish — per layer of the app — whether that layer *may* be
-charged for, what obligation follows if it may, and the clause that decides it.
-The output is a map with citations, made durable by a guard test that fails when
-it drifts from what the repo actually distributes.
+Let two or three phones shop off one carrito without a server. A device is either
+*solo* or *bound* to a session; the list travels inside a URL fragment
+(`/app/#j=1.<sessionId>.<items>`), so nothing leaves the device until the user
+sends the link themselves. Binding asks merge-or-replace, unbinding asks
+keep-or-clear, and both answers are the user's.
 
-Intent: [INTENT-monetization.md](../.agents/docs/intent/INTENT-monetization.md) ·
-Spec: [SPEC-licensing.md](../.agents/docs/intent/SPEC-licensing.md)
+Intent: [CAPABILITY-MAP.md § Initiative: Joint lists](../.agents/docs/intent/CAPABILITY-MAP.md) ·
+Spec: [SPEC-joint-session.md](../.agents/docs/intent/SPEC-joint-session.md)
+
+## Working agreement
+
+**Every task is built test-first (confirmed 2026-10-12).** The test is written and
+*seen to fail* before the implementation exists, per
+[test-driven-development](../.agents/skills/test-driven-development/SKILL.md). No task
+is complete on "seems right": the red run is the evidence the test can fail, and the
+green run is the evidence it now covers something real. A test that passes on its first
+run is treated as a broken test, not a finished task.
 
 ## Architecture Decisions
 
-- **The envelope is data, not prose.** `data/licensing/inventory.json` holds the
-  rows; `tests/licensing.test.ts` is the guard. A prose answer rots silently; a
-  table with a guard fails when a new distributed artifact appears without a
-  verdict. Same shape as the section→zone table proved against all 4,330
-  products.
-- **The audit does not ship.** Nothing under `src/` imports the inventory, and no
-  app behaviour changes. The envelope is build- and test-time only, so it adds
-  nothing to the bundle and cannot accidentally become a runtime dependency.
-- **Verdicts are a fixed vocabulary, and each carries a `basis`.** `safe` /
-  `safe-if-X` / `not-safe` / `unknown`, with `X` named. No verdict without a
-  citation, enforced by the test rather than by discipline.
-- **`unknown` is first-class and is not softened.** The mirror's MIT question is
-  the load-bearing one, and the honest answer may well be `unknown` plus what
-  would resolve it. The app already works this way — a confident guess is never
-  preferred to a stated gap.
-- **Research order follows risk, not document order.** ODbL is the layer most
-  likely to change the answer, so it is researched first. If it turns out to
-  forbid charging behind the nutrition layer, that is cheaper to learn now than
-  after a feature exists.
-- **The unresolved branch is recorded, not guessed.** Whether the paywall gates
-  the *database* or the *app* decides `safe` versus `safe-if` for the
-  OFF-derived fields, and that question cannot be answered until a feature is
-  chosen — so both branches are written down.
-- **No enforceability opinion, ever.** The map states what the licences say and
-  what a qualified reader should be shown. It never states whether a term would
-  hold up.
+- **A shared list is a `Cart`.** One schema, one storage key (`carrito.cart.v1`),
+  and a small sibling record (`carrito.joint.v1`) saying whether this device is
+  bound. Nothing in `cart.ts` changes. A second cart shape would have meant a
+  second `cartTotal`, a second set of row components and a migration — for a
+  feature whose whole point is that the list is the list.
+- **The session id lives in the fragment, never the query or the path.** A
+  fragment is not sent in a request line, not in `Referer`, and not in the
+  origin's logs. That single fact is why the link is shaped the way it is, and
+  why `public/_headers` does not move.
+- **The codec is canonical, so payloads are comparable.** Items are emitted sorted
+  by `productId`, quantity 1 is omitted, checked is one character. The same cart
+  always produces the same string, which makes the round-trip test an equality
+  test rather than a set comparison, and makes two people comparing links compare
+  the same bytes.
+- **Malformed means rejected whole.** `decodeSharePayload` returns `null` and never
+  throws, and the caller changes nothing. Same posture as `loadCart` degrading a
+  corrupt cart to an empty one: a bad input is not a crash, and it is not a
+  half-applied edit either.
+- **Merge is commutative in contents and lossy in one direction, and that is
+  said out loud.** `quantity` takes the higher of the two, `checked` is
+  checked-by-either. So merge can resurrect a line the user had unchecked — the
+  dialog's message names that before the tap, and *Reemplazar* is the escape.
+  Hiding it would make the app's list disagree with what the user thought they
+  did.
+- **`ConfirmDialog` gains a third action rather than a second dialog component.**
+  Both questions here have two real answers and one safe exit (Fusionar /
+  Reemplazar / Cancelar; Quedarme / Empezar de cero / Cancelar). The native
+  `<dialog>` already brings the focus trap, Esc and the top layer, and its comment
+  explains at length why that is not worth re-implementing. The new action is
+  optional, so every existing `ConfirmDialog` call site is untouched — and the
+  safe choice still takes focus.
+- **The remembered choice pre-answers, it does not auto-apply.** Both options are
+  always on screen with the remembered one as the primary button, so a handshake
+  is one tap when the answer is still the same and never a surprise. The app never
+  performs a destructive merge because of a default the user set last month.
+- **The share action is an injected seam.** `navigator.share` and
+  `navigator.clipboard` are absent in tests and in some browsers, so the call goes
+  through a small wrapper that takes the navigator as a parameter. That keeps the
+  fallback path testable without a browser stub library, and keeps `src/lib` free
+  of globals.
+- **No new request, so no header and no guard changes.** The link is built and
+  parsed locally. `tests/network-hygiene.test.ts` is not weakened; a new assertion
+  is added that the sharing code contains no `fetch`.
 
 ## Task List
 
-### Phase 1: The inventory and its guard
+**Re-sliced during implementation, 2026-10-12.** The plan below is the sequence that was
+actually built. The original split — bar-plus-bind-question as one task, the share action
+as the next — did not survive contact: a bar whose *Compartir* button does nothing is not
+a working slice, and the share mechanism is self-contained enough to be its own. So the
+mechanism came first, then the bar, then one wiring task that lands the whole feature
+working (including unbind, which was Task 8 and is now folded into the wiring). The
+numbers below are the ones in `todo.md`.
 
-- [x] Task 1: The row contract and the ten rows — `data/licensing/inventory.json`,
-      vocabulary and basis enforced by test. Done 2026-10-11: ten rows seeded
-      `unknown` with what would resolve each; contract green (9 tests).
-- [x] Task 2: The completeness guard — every committed artifact under
-      `public/catalog/` and `data/enriched/` maps to exactly one row. Done
-      2026-10-11: rows gained a `covers` list; proved to fail by adding a file
-      under `public/catalog/` and removing it again.
-- [x] Task 3: The OFF-fields guard — the nutrition fields actually present in the
-      shipped bundle are accounted for by a row. Done 2026-10-11: 15 leaf paths
-      enumerated; the spec's claim that all of them are OFF-derived was **wrong**
-      and corrected first.
+### Phase 1: The pure core
 
-### Checkpoint: Inventory
-- [x] `npx vitest run tests/licensing.test.ts` green — 17 tests
-- [x] The guard has been seen to *fail* on a deliberate drift, not just pass —
-      probed with a new file and with a new field, both reverted
-- [x] No `src/` file imports the inventory
+- [x] Task 1: The binding contract and its store. Files: `src/types/joint-session.ts`,
+  `src/lib/joint-session.ts`, `src/lib/joint-session.test.ts`. **Done** — 14 tests.
+- [x] Task 2: The link codec. Same files. **Done** — 70 tests in the file by the end,
+  including 20 malformed payloads in one table.
+- [x] Task 3: The merge rule. Same files. **Done** — 11 red first.
 
-### Phase 2: The layers, researched in risk order
+### Checkpoint: Pure core — **passed**
+- [x] `npx vitest run src/lib/joint-session.test.ts` green
+- [x] `npm run test:coverage` holds the ≥ 90% floor
+- [x] No React import, no `window`, no `fetch` in `src/lib/joint-session.ts`
+- [x] Round-trip is an equality on the canonical string, not a set comparison
 
-- [x] Task 4: The ODbL layer — `enriched-db`, `off-derived-nutrition`,
-      `off-api-terms`, with clause citations. Done 2026-10-11: the ODbL text and
-      Open Food Facts' terms were fetched and quoted, not recalled. The decisive
-      clauses are 4.7(b) and 4.7(c): a paywall is contemplated, and conditional
-      on the data staying free.
-- [x] Task 5: The Mercadona layer — `mirror`, `underlying-catalog-data`,
-      `catalog-bundle`, `photos`, `trademark`. Done 2026-10-11: the mirror's
-      `LICENSE` was read and is software-scoped MIT, which is what makes the
-      dataset's `license: mit` tag an `unknown` rather than a `safe`.
-- [x] Task 6: The authored layer — `code`, `app-shell`, and the missing `LICENSE`.
-      Done 2026-10-11: runtime dependencies read from their own manifests, both
-      MIT; the tool that would enumerate every transitive licence named rather
-      than claimed.
+### Phase 2: The seam and the pieces
 
-### Checkpoint: Verdicts
-- [x] Every row has a verdict and a non-empty `basis`
-- [x] Every `unknown` names what would resolve it
-- [ ] Review with the human before writing the document — **overridden**: explicit
-      instruction to finish unattended, so the review moves to the morning
+- [x] Task 4: A second action for `ConfirmDialog`. Files:
+  `src/components/ConfirmDialog.tsx`, `ConfirmDialog.test.tsx`. **Done** — no CSS needed
+  (the plan guessed wrong; the classes are styled by the global `button` rule).
+- [x] Task 5: `useJointSession`. Files: `src/app/useJointSession.ts`, its test, and
+  `src/app/useCart.ts` (which gained `replace`). **Done** — 15 tests.
+- [x] Task 6: The share mechanism, `src/lib/share.ts`. Files: `src/lib/share.ts`,
+  `src/lib/share.test.ts`. **Done** — 6 tests, including the cancelled-sheet case.
+- [x] Task 7: `JointSessionBar`. Files: `src/components/JointSessionBar.tsx`, its test.
+  **Done** — 9 tests, two of which assert what the bar must *not* say.
 
-### Phase 3: The map
+### Checkpoint: The pieces — **passed**
+- [x] Each piece tested on its own, with the platform injected rather than assumed
 
-- [x] Task 7: `docs/licensing/ENVELOPE.md` — one section per layer, ending in a
-      verdict and its clause, with the not-legal-advice framing and the list of
-      what a lawyer would need to see. Written; human review deferred.
-- [x] Task 8: The litmus — three plausible premium features run through the
-      envelope end to end. Done: all three land on the same row, which is the
-      finding — the feature is not what decides it.
+### Phase 3: The wiring
 
-### Checkpoint: Map
-- [x] A feature can be given a verdict without re-opening the research
+- [x] Task 8: Bar + bind question + share + refusal + unbind, wired. Files:
+  `src/app/App.tsx`, `src/app/App.test.tsx`, `src/app/CartScreen.tsx`,
+  `src/components/JointSessionBar.tsx` (rendered in both branches), `src/styles.css`.
+  **Done** — 11 wiring tests in `App.test.tsx`, 29 in the file.
 
-### Phase 4: Verification
+### Checkpoint: The feature works — **passed**
+- [x] An arriving link asks, and applies only what was chosen
+- [x] Sharing builds a real link from the list on screen, and refuses when too long
+- [x] Unbinding offers keep-or-clear, and either leaves nothing behind
+- [x] Two devices converge once the link has gone both ways
 
-- [x] Task 9: Prove the guard fails when it should; full suite, typecheck, lint
-      and build green. Probed three ways: a new file, a new field, a removed row.
+### Phase 4: The guard and the record
+
+- [x] Task 9: The integration test, the network guard, and the docs the spec amends.
+  Files: `tests/joint-session.test.ts`, `tests/network-hygiene.test.ts`,
+  `.agents/docs/intent/SPEC-cart.md`, `README.md`, `docs/LAUNCH.md`. **Done** — the guard
+  was proved to fail on deliberate drift, then the drift was reverted.
 
 ### Checkpoint: Complete
-- [x] Every acceptance criterion met
-- [x] The envelope names the question it could not settle, and what would settle it
-- [ ] Reviewed by the human, merged — **open**: reviews deferred to the morning,
-      nothing merged
-
-> **Answer, for the morning:** the premium feature is not the blocker. The
-> catalogue's chain of title is. Six of ten rows are `unknown` and five of them
-> inherit from `underlying-catalog-data`.
+- [x] Every acceptance criterion in the spec is met
+- [x] `npm test` — **738 passed**; `npm run test:coverage` — 97.63% statements, 94.37%
+  branches, 98.81% functions, 99.19% lines against the 90% floor
+- [x] `npm run typecheck`, `npm run lint`, `npm run build` all green
+- [x] `public/_headers` is byte-identical — `git diff --stat -- public/_headers` empty
+- [x] `git status` clean of probe artifacts
+- [ ] **Reviewed by the human, merged** — open: nothing is committed
 
 ## Risks and Mitigations
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| ODbL forbids gating the nutrition layer | High | Researched first (Task 4), before any feature or paywall exists; the branch where the paywall gates the *app* rather than the *database* is recorded separately |
-| The mirror's MIT is read as covering the data when it may only cover the mirror | High | The row is `unknown` unless a source settles it, and the row must name what would settle it; the convenient reading is explicitly not taken |
-| A research claim is paraphrased from memory and is wrong | High | Every `basis` cites a document and clause; the primary texts are fetched and cited, not recalled |
-| A verdict is mistaken for legal advice | High | Fixed framing on the document, and an explicit "what a lawyer needs" list; no enforceability statements anywhere |
-| The inventory drifts as the pipeline changes | Medium | The guard reads the real repo and the real bundle; a new committed artifact or a new OFF-sourced field without a row fails the test |
-| Scope creep into paywall implementation | Medium | Out of scope in the intent; boundaries forbid shipping a paywall in the same change |
-| Audit code leaking into the app bundle | Low | No `src/` import, asserted at the checkpoint |
+| A real chat client truncates or breaks a long fragment | High | `MAX_SHARE_URL_LENGTH` is checked *before* the link is offered, so a list either shares or says it cannot; a test pins the length of a 100-line cart, and the share message is verified against the cap, not assumed |
+| The user reads "compartida" as "synced" and trusts a stale phone | High | The bar says *compartida* and never *sincronizada*; the spec's "what a link cannot do" is echoed in the bar and the bind dialog, not only in the docs; verified in the component test by asserting the absence of the word |
+| Merge quietly resurrects an unchecked line | Medium | The consequence is in the dialog's message before the tap; *Reemplazar* is the documented escape; a test asserts the message names it |
+| `navigator.share`/`clipboard` unavailable or blocked | Medium | Two fallbacks behind one seam; the last is a selectable text field, which cannot be blocked |
+| A remembered choice applies something the user no longer wants | Medium | The remembered choice only *pre-answers*; both buttons are always visible, focus stays on Cancelar, and nothing is applied without a tap |
+| A future change reintroduces a request (a "sync" that is really an upload) | High | `tests/network-hygiene.test.ts` gains an assertion that the joint-session source contains no `fetch`/`XMLHttpRequest`; the spec's *Never* list names transmission as forbidden |
+| Scope creep into the rejected backend | Medium | The decision is recorded at the head of the spec; a server component is *Ask first*, not an implementation detail |
+| A stale service worker serves a build without fragment handling | Low | Both HTML documents are `no-cache` in `public/_headers`; the fragment is read at mount, before any async work |
+| Losing a cart on *Reemplazar* | Medium | Already an open question in the spec: it discards loudly rather than adding a recovery slot. If it loses a real list, the recovery slot is the fix — deliberately not built speculatively |
 
 ## Open Questions
 
-- **Does the mirror's MIT extend to Mercadona's data, or only to the mirror's
-  packaging?** Load-bearing. Answered as `unknown` plus what resolves it, unless
-  Task 5 finds a source that settles it.
-- **Does the paywall gate the database or the app?** Decides `safe` vs `safe-if`
-  for the OFF-derived fields. Both branches recorded; unresolvable until a
-  feature is chosen.
-- **Hotlinking versus redistribution for the photos**, and whether gating changes
-  the analysis. Stated, not guessed.
-- **Is jurisdiction really Spain/EU, and does the app ship outside it?** Changes
-  the sui generis database-rights reading.
-- **Does `CAPABILITY-MAP.md` gain a third initiative entry?** Its map is approved
-  and gated, so this is a human decision — the plan does not assume an answer.
+Carried from the spec, unresolved until the relevant task:
+
+1. **The cap** — 8000 characters assumed, no QR (Task 2 pins it with a test).
+2. **Replace discards** — loud, not recoverable (Task 6 wording; revisit if it loses a list).
+3. **One session at a time** — a second session is refused (Task 6).
+4. **Wording** — "lista compartida" / "sesión conjunta" / "lista familiar" is chosen before the
+   strings are written, in Task 6. The plan uses "lista compartida".
+5. **Order** — only items travel; the `ordering` preference stays per device (Task 2).
+
+Raised by this plan, for the human:
+
+6. **Pasting a link.** Some chat clients do not make a `#fragment` link tappable. A
+   "pegar enlace" field would cover that, but it is not in the spec, so it is **not**
+   built here — flagged as a possible spec amendment rather than smuggled into a task.

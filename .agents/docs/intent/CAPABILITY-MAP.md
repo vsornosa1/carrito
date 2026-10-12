@@ -304,3 +304,40 @@ Specs: [SPEC-licensing.md](./SPEC-licensing.md),
 [SPEC-entitlement.md](./SPEC-entitlement.md). `branding` and `launch-comms` have no
 spec yet — both need decisions only the author can make (a name, and how to publish
 given an employer), so they are deliberately left open rather than guessed.
+
+---
+
+# Initiative: Joint lists
+
+Approved 2026-10-12.
+
+**Intent:** one carrito for the household. Build it, send it, and let whoever is in the
+shop tick things off against the same list; then detach, keeping the list or leaving it.
+
+**The decision this initiative is built on:** confirmed 2026-10-12 — **no backend**. The
+shared list travels inside the link (`/app/#j=…`, a fragment, so it never reaches a
+server, a log or a `Referer`), and the app adds no request and no origin. The rejected
+alternative was a Cloudflare Worker + Durable Object relaying live edits; it is rejected
+because it ends "no server, no accounts, no user data leaves the device" for a
+convenience, and that trade is not worth it here. The price paid instead is stated in the
+spec: devices converge only when a link is exchanged, there is no roll call, and a link
+cannot be revoked.
+
+## Modules
+
+| Module id | Responsibility | Depends on |
+|---|---|---|
+| `joint-session` | Create, share, bind to and unbind from a shared list: the link codec, the merge rule, the binding store, and the two dialogs that ask before anything is lost | `cart` |
+
+**Build order:** `cart` (built) → `ordering` (built) → `joint-session`
+
+Spec: [SPEC-joint-session.md](./SPEC-joint-session.md).
+
+## Invariants under review
+
+| Invariant | Recorded in | What joint lists do to it |
+|---|---|---|
+| CSP: `connect-src 'self'`, `script-src 'self'` | `public/_headers` | **Unchanged, deliberately.** The design keeps the payload in a fragment and adds no origin, so no header moves |
+| "No accounts, no login, no server, no user data leaves the device" | `docs/LAUNCH.md` | Still true. A device is *bound*, not signed in; the list leaves the device only when the user sends the link themselves |
+| "Keep all network access inside `scripts/`" | this file, *Boundaries* | Unchanged: this module makes no runtime request |
+| "One user, one device. No accounts, no sync, no server. Nothing about the cart is transmitted anywhere." | `SPEC-cart.md`, *Output contract* | **Amended.** The cart stays one-per-device and unsynced; a *shared* list is a cart the user moves between devices by hand, which the cart spec must acknowledge with a pointer to this one |
